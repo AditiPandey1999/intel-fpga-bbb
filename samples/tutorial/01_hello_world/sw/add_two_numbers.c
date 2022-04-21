@@ -136,33 +136,44 @@ int main(int argc, char *argv[])
     //Search for an accelerator matching the requested UUID and connect to it.
     fpga_handle accel_handle;
     volatile char *buf;
-    uint64_t wsid; //
-    uint64_t buf_pa, //physical i/o address where we want to allocate buffer
-
+    uint64_t wsid1; //
+    uint64_t wsid2; 
+    uint64_t wsid3; 
+    uint64_t buf_pa1, //physical i/o address where we want to allocate buffer
+    uint64_t buf_pa2;
+    uint64_t buf_pa3;
     // Find and connect to the accelerator
     //CPU gets a handle for FPGA to talk to it
     accel_handle = connect_to_accel(AFU_ACCEL_UUID);
 
     // Allocate a single page memory buffer in I/O memory, shared with the FPGA.
     // buf is a pointer to the buffer
-    buf = (volatile char*)alloc_buffer(accel_handle, getpagesize(),
-                                       &wsid, &buf_pa);
+    buf1 = (volatile char*)alloc_buffer(accel_handle, getpagesize(),
+                                       &wsid1, &buf_pa1);
+    buf2 = (volatile char*)alloc_buffer(accel_handle, getpagesize(),
+                                       &wsid2, &buf_pa2);
+    buf3 = (volatile char*)alloc_buffer(accel_handle, getpagesize(),
+                                       &wsid3, &buf_pa3);
     
-    assert(NULL != buf);
-
+    assert(NULL != buf1);
+    assert(NULL != buf2);
+    assert(NULL != buf3);
     // Set the low byte of the shared buffer to 0.  The FPGA will write
     // a non-zero value to it.
-    buf[0] = 0;
+    buf1[0] = 0;
+    buf2[0] = 0;
+    buf3[0] = 0;
  
     // Tell the accelerator the address of the buffer using cache line
     // addresses.  The accelerator will respond by writing to the buffer.
     // calls an API to tell FPGA which address of buffer it is listening on
-    fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa / CL(1));
- 
+    fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa1 / CL(1));
+    fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa2 / CL(1));
+    fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa3 / CL(1));
 
     // Spin, waiting for the value in memory to change to something non-zero.
     // Keeps waiting for non-null char in buffer to see if fpga has written something
-    while (0 == buf[0])
+    while (0 == buf[0] || 0 == buf2[0] || 0 == buf3[0])
     {
         // A well-behaved program would use _mm_pause(), nanosleep() or
         // equivalent to save power here.
@@ -173,7 +184,9 @@ int main(int argc, char *argv[])
     printf("%s\n", buf);
 
     // Done
-    fpgaReleaseBuffer(accel_handle, wsid);
+    fpgaReleaseBuffer(accel_handle, wsid1);
+    fpgaReleaseBuffer(accel_handle, wsid2);
+    fpgaReleaseBuffer(accel_handle, wsid3);
     fpgaClose(accel_handle);
 
     return 0;
