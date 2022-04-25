@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 
     //Once non-null is seen on memory location, prints contents
     // Print the string written by the FPGA
-    printf("%s\n", buf);
+    printf("%s\n", buf3);
 
     // Done
     fpgaReleaseBuffer(accel_handle, wsid1);
