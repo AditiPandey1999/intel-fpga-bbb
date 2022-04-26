@@ -192,18 +192,45 @@ module ofs_plat_afu
     // write MMIO spaces are logically separate so we are free to use
     // whatever we like.  This may not be good practice for cleanly
     // organizing the MMIO address space, but it is legal.
+   
+    logic is_mem_addr_csr_read;
+    assign is_mem_addr_csr_read= is_csr_read && (mmio_req_hdr.address == t_ccip_mmioAddr'(0) );
+    // Memory address  which this AFU will read.
+    t_ccip_clAddr mem_read_addr1;
+
+    always_ff @(posedge clk)
+    begin
+       if (is_mem_addr_csr_read)
+        begin
+            mem_read_addr1<= t_ccip_clAddr'(host_ccip.sRx.c0.data);
+        end
+    end
+   
+   logic is_mem_addr_csr_read;
+    assign is_mem_addr_csr_read= is_csr_read && (mmio_req_hdr.address == t_ccip_mmioAddr'(0) );
+    // Memory address  which this AFU will read.
+    t_ccip_clAddr mem_read_addr2;
+
+    always_ff @(posedge clk)
+    begin
+       if (is_mem_addr_csr_read)
+        begin
+            mem_read_addr2<= t_ccip_clAddr'(host_ccip.sRx.c0.data);
+        end
+    end
+   
     logic is_mem_addr_csr_write;
     assign is_mem_addr_csr_write = is_csr_write &&
                                    (mmio_req_hdr.address == t_ccip_mmioAddr'(0));
 
     // Memory address to which this AFU will write.
-    t_ccip_clAddr mem_addr;
+    t_ccip_clAddr mem_write_addr;
 
     always_ff @(posedge clk)
     begin
         if (is_mem_addr_csr_write)
         begin
-            mem_addr <= t_ccip_clAddr'(host_ccip.sRx.c0.data);
+            mem_write_addr <= t_ccip_clAddr'(host_ccip.sRx.c0.data);
         end
     end
     
@@ -238,12 +265,19 @@ module ofs_plat_afu
         end
         else
         begin
-            // Trigger the AFU when mem_addr is set above.  (When the CPU
-            // tells us the address to which the FPGA should write a message.)
+           
+           // Trigger the AFU when mem_addr is set above, when the CPU tells us the address which the FPGA should read a message.
+            if ((state == STATE_IDLE) && is_mem_addr_csr_read)
+            begin
+                state <= STATE_RUN;
+               $display("AFU reading...");
+            end
+           
+           // Trigger the AFU when mem_addr is set above, when the CPU tells us the address to which the FPGA should write a message.
             if ((state == STATE_IDLE) && is_mem_addr_csr_write)
             begin
                 state <= STATE_RUN;
-                $display("AFU running...");
+               $display("AFU writing...");
             end
 
             // The AFU completes its task by writing a single line.  When
@@ -262,10 +296,27 @@ module ofs_plat_afu
     // Write "Hello world!" to memory when in STATE_RUN.
     //
 
+    // Construct a memory read request header. 
+   
+     t_ccip_c1_ReqMemHdr rd_hdr1;
+     t_ccip_c1_ReqMemHdr rd_hdr2;
+   
+    begin
+        rd_hdr1 = t_ccip_c1_ReqMemHdr'(0);
+        rd_hdr1.address = mem_read_addr1;
+    end
+   
+     
+    begin
+        rd_hdr2 = t_ccip_c1_ReqMemHdr'(0);
+        rd_hdr2.address = mem_read_addr2;
+    end
+   
     // Construct a memory write request header.  For this AFU it is always
     // the same, since we write to only one address.
     t_ccip_c1_ReqMemHdr wr_hdr;
     always_comb
+       
     begin
         // Zero works for most write request header fields in this example
         wr_hdr = t_ccip_c1_ReqMemHdr'(0);
@@ -276,7 +327,9 @@ module ofs_plat_afu
     end
 
     // Data to write to memory: little-endian ASCII encoding of "Hello world!"
-    assign host_ccip.sTx.c1.data = t_ccip_clData'('h0021646c726f77206f6c6c6548);
+    //assign host_ccip.sTx.c1.data = t_ccip_clData'('h0021646c726f77206f6c6c6548);
+   assign res=t_ccip_clData(rd_hdr1.address)+t_ccip_clData(rd_hdr2.address);
+   assign host_ccip.sTx.c1.data = t_ccip_clData(res);
 
     // Control logic for memory writes
     always_ff @(posedge clk)
@@ -299,6 +352,6 @@ module ofs_plat_afu
     //
     // This AFU never makes a read request.
     //
-    assign host_ccip.sTx.c0.valid = 1'b0;
+    //assign host_ccip.sTx.c0.valid = 1'b0;
 
 endmodule
