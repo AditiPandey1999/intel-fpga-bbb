@@ -28,6 +28,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+// Wrapper interface for passing all top-level interfaces into an AFU.
+// Every platform must provide this interface.
+// https://github.com/OPAE/ofs-platform-afu-bbb/blob/master/plat_if_develop/ofs_plat_if/src/rtl/ofs_plat_if.vh
 `include "ofs_plat_if.vh"
 `include "afu_json_info.vh"
 
@@ -58,6 +61,7 @@ module ofs_plat_afu
     // and the native protocol of the host channel.
     ofs_plat_host_chan_as_ccip primary_ccip
        (
+         //fpga interface unit, bridge between platform interfaces like PCIe and Afu-side interfaces like CCIP
         .to_fiu(plat_ifc.host_chan.ports[0]),
         .to_afu(host_ccip),
 
