@@ -189,7 +189,7 @@ module ofs_plat_afu
     // whatever we like.  This may not be good practice for cleanly
     // organizing the MMIO address space, but it is legal.
 
-*************
+//*************
     logic is_mem_addr_csr_read;
     assign is_mem_addr_csr_read = is_csr_read &&
                                    (mmio_req_hdr.address == t_ccip_mmioAddr'(0));
@@ -207,7 +207,7 @@ module ofs_plat_afu
            mem_rd_addr2<= t_ccip_clAddr'(host_ccip.sTx.c0.data);
         end
     end
- *************
+// *************
    
     logic is_mem_addr_csr_write;
     assign is_mem_addr_csr_write = is_csr_write &&
@@ -258,7 +258,7 @@ module ofs_plat_afu
             // Trigger the AFU when mem_addr is set above.  (When the CPU
             // tells us the address to which the FPGA should write a message.)
            
-           **************
+           //**************
            
           if ((state == STATE_IDLE) && is_mem_addr_csr_read)
             begin
@@ -274,7 +274,7 @@ module ofs_plat_afu
                host_ccip.sRx.c0.hdr <= mem_rd_add2;
             end
            
-           **************
+           //**************
            
           if ((state == STATE_IDLE) && is_mem_addr_csr_write)
             begin
@@ -298,7 +298,7 @@ module ofs_plat_afu
     // Write "Hello world!" to memory when in STATE_RUN.
     //
 
- ****************
+ //****************
    
     t_ccip_c0_ReqMemHdr rd_hdr;
     t_ccip_c0_ReqMemHdr rd_hdr2;
@@ -315,7 +315,7 @@ module ofs_plat_afu
         // Start of packet is always set for single beat writes
     end
    
- ****************
+ // ****************
     // Construct a memory write request header.  For this AFU it is always
     // the same, since we write to only one address.
     t_ccip_c1_ReqMemHdr wr_hdr;
@@ -328,12 +328,12 @@ module ofs_plat_afu
         // Start of packet is always set for single beat writes
         wr_hdr.sop = 1'b1;
     end
-*****************
+//*****************
    
     // Data to write to memory: little-endian ASCII encoding of sum
     assign host_ccip.sTx.c1.data = rd_hdr.data + rd_hdr2.data;
    
-*****************
+//*****************
    
     // Control logic for memory writes
     always_ff @(posedge clk)
@@ -356,7 +356,7 @@ module ofs_plat_afu
     //
     // This AFU never makes a read request.
     //
-   ****
+ //****************
     assign host_ccip.sTx.c0.valid = 1'b0;
 
 endmodule
