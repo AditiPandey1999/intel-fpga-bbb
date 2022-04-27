@@ -112,7 +112,16 @@ static volatile void* alloc_buffer(fpga_handle accel_handle,
     return buf;
 }
 
+/*
+In the function `alloc_buffer`, the purpose is to tell the FPGA running the OPAE "blue bitstream" 
+(i.e., system code) to allocate a memory buffer shared with the host through MMIO. Two device APIs are called.
+1) fpgaPrepareBuffer which allocates the physical memory region and maps it into the virtual memory space of the 
+host side process and pins that page so it does not get paged out (by the virtual memory system) and 
+2) fpgaGetIOAddress then gets the address of this buffer in the IO virtual address space. This latter
+IO address  `wsid` appears to uniquely identify the buffer once the buffer is created (or "prepared").
 
+To communicate to the device from the host process, the `buf_addr` in the first API call is the important address.
+*/
 int main(int argc, char *argv[])
 {
     fpga_handle accel_handle;
