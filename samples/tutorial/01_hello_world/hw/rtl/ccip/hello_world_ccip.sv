@@ -271,7 +271,7 @@ module ofs_plat_afu
         wr_hdr.sop = 1'b1;
     end
 
-    // Data to write to memory: little-endian ASCII encoding of "Hello world!"
+    // Data to write to memory: little-endian ASCII encoding of sum
     assign host_ccip.sTx.c1.data = t_ccip_clData'('h00110000);
 
     // Control logic for memory writes
