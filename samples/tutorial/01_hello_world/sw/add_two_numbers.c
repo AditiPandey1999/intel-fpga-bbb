@@ -153,24 +153,24 @@ int main(int argc, char *argv[])
     
     int a = 10;
     int b = 25;
-    buf[0]= a;
-    buf[4]= b;
+    buf[4]= a;
+    buf[8]= b;
       
    
     // Set the low byte of the shared buffer to 0.  The FPGA will write
     // a non-zero value to it.
    
-    buf[8] = 0;
- 
+    buf[0] = 0;
+
     // Tell the accelerator the address of the buffer using cache line
     // addresses.  The accelerator will respond by writing to the buffer.
     // calls an API to tell FPGA which address of buffer it is listening on
   
-    fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa / CL(1));
+    fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa, CL(1));
 
     // Spin, waiting for the value in memory to change to something non-zero.
     // Keeps waiting for non-null char in buffer to see if fpga has written something
-    while ( 0 == buf[8])
+    while ( 0 == buf[0])
     {
         // A well-behaved program would use _mm_pause(), nanosleep() or
         // equivalent to save power here.
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
 
     //Once non-null is seen on memory location, prints contents
     // Print the string written by the FPGA
-    printf("%d\n", buf[8]);
+    printf("%d\n", buf[0]);
 
     // Done
     fpgaReleaseBuffer(accel_handle, wsid);
