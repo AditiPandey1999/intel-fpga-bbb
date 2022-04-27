@@ -188,10 +188,30 @@ module ofs_plat_afu
     // write MMIO spaces are logically separate so we are free to use
     // whatever we like.  This may not be good practice for cleanly
     // organizing the MMIO address space, but it is legal.
+
+*************
+    logic is_mem_addr_csr_read;
+    assign is_mem_addr_csr_read = is_csr_read &&
+                                   (mmio_req_hdr.address == t_ccip_mmioAddr'(0));
+   
+   t_ccip_clAddr mem_rd_addr1;
+   t_ccip_clAddr mem_rd_addr2;
+   always_ff @(posedge clk)
+   begin
+      if (is_mem_addr_csr_read)
+        begin
+           mem_rd_addr1 <= t_ccip_clAddr'(host_ccip.sTx.c0.data);
+        end
+       if (is_mem_addr_csr_read)
+        begin
+           mem_rd_addr2<= t_ccip_clAddr'(host_ccip.sTx.c0.data);
+        end
+    end
+ *************
+   
     logic is_mem_addr_csr_write;
     assign is_mem_addr_csr_write = is_csr_write &&
                                    (mmio_req_hdr.address == t_ccip_mmioAddr'(0));
-
     // Memory address to which this AFU will write.
     t_ccip_clAddr mem_addr;
 
@@ -237,12 +257,25 @@ module ofs_plat_afu
         begin
             // Trigger the AFU when mem_addr is set above.  (When the CPU
             // tells us the address to which the FPGA should write a message.)
+           
+           **************
+           
           if ((state == STATE_IDLE) && is_mem_addr_csr_read)
             begin
                 state <= STATE_READ;
-              $display("AFU reading...");
+               $display("AFU reading first number...");
+               host_ccip.sRx.c0.hdr <= mem_rd_add1;
             end
-          
+           
+           if ((state == STATE_IDLE) && is_mem_addr_csr_read)
+            begin
+                state <= STATE_READ;
+               $display("AFU reading second number...");
+               host_ccip.sRx.c0.hdr <= mem_rd_add2;
+            end
+           
+           **************
+           
           if ((state == STATE_IDLE) && is_mem_addr_csr_write)
             begin
                 state <= STATE_RUN;
@@ -265,6 +298,24 @@ module ofs_plat_afu
     // Write "Hello world!" to memory when in STATE_RUN.
     //
 
+ ****************
+   
+    t_ccip_c0_ReqMemHdr rd_hdr;
+    t_ccip_c0_ReqMemHdr rd_hdr2;
+   
+    begin
+        rd_hdr = t_ccip_c0_ReqMemHdr'(0);
+        rd_hdr.address = mem_rd_addr1;
+    end
+   
+    t_ccip_c0_ReqMemHdr rd_hdr2;
+    begin
+       rd_hdr2 = t_ccip_c0_ReqMemHdr'(1);
+        rd_hdr2.address = mem_rd_addr2;
+        // Start of packet is always set for single beat writes
+    end
+   
+ ****************
     // Construct a memory write request header.  For this AFU it is always
     // the same, since we write to only one address.
     t_ccip_c1_ReqMemHdr wr_hdr;
@@ -277,10 +328,13 @@ module ofs_plat_afu
         // Start of packet is always set for single beat writes
         wr_hdr.sop = 1'b1;
     end
-
+*****************
+   
     // Data to write to memory: little-endian ASCII encoding of sum
-    assign host_ccip.sTx.c1.data = t_ccip_clData'('h00110000);
-
+    assign host_ccip.sTx.c1.data = rd_hdr.data + rd_hdr2.data;
+   
+*****************
+   
     // Control logic for memory writes
     always_ff @(posedge clk)
     begin
@@ -302,6 +356,7 @@ module ofs_plat_afu
     //
     // This AFU never makes a read request.
     //
+   ****
     assign host_ccip.sTx.c0.valid = 1'b0;
 
 endmodule
