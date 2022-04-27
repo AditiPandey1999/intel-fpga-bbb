@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
     };
 
     //Once non-null is seen on memory location, prints contents
-    // Print the string written by the FPGA
+    // Print the result written by the FPGA
     printf("%d\n", buf[0]);
 
     // Done
