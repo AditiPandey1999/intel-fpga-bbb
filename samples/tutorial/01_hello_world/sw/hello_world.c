@@ -118,7 +118,8 @@ In the function `alloc_buffer`, the purpose is to tell the FPGA running the OPAE
 1) fpgaPrepareBuffer which allocates the physical memory region and maps it into the virtual memory space of the 
 host side process and pins that page so it does not get paged out (by the virtual memory system) and 
 2) fpgaGetIOAddress then gets the address of this buffer in the IO virtual address space. This latter
-IO address  `wsid` appears to uniquely identify the buffer once the buffer is created (or "prepared").
+IO address seems to imply some sort of sharing perhaps across processes.
+`wsid` appears to uniquely identify the buffer once the buffer is created (or "prepared").
 
 To communicate to the device from the host process, the `buf_addr` in the first API call is the important address.
 */
