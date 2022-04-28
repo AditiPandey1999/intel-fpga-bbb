@@ -1,4 +1,4 @@
-//ADD 2 NUMBERS
+//
 // Copyright (c) 2020, Intel Corporation
 // All rights reserved.
 //
@@ -271,8 +271,8 @@ module ofs_plat_afu
         wr_hdr.sop = 1'b1;
     end
 
-    // Data to write to memory: little-endian ASCII encoding of sum
-    assign host_ccip.sTx.c1.data = t_ccip_clData'('h00110000);
+    // Data to write to memory: little-endian ASCII encoding of "Hello world!"
+    assign host_ccip.sTx.c1.data = t_ccip_clData'('h0021646c726f77206f6c6c6548);
 
     // Control logic for memory writes
     always_ff @(posedge clk)
