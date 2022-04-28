@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
     // addresses.  The accelerator will respond by writing to the buffer.
     // calls an API to tell FPGA which address of buffer it is listening on
   
-    fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa, CL(1));
+    fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa / CL(1));
 
     // Spin, waiting for the value in memory to change to something non-zero.
     // Keeps waiting for non-null char in buffer to see if fpga has written something
