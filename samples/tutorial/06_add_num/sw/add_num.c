@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
     fpga_handle accel_handle;
     volatile char *buf;
     uint64_t wsid; //uniquely identify the buffer once the buffer is created (or "prepared")
-    uint64_t buf_pa, //physical i/o address where we want to allocate buffer
+    uint64_t buf_pa; //physical i/o address where we want to allocate buffer
   
     // Find and connect to the accelerator
     //CPU gets a handle for FPGA to talk to it
@@ -168,6 +168,17 @@ int main(int argc, char *argv[])
     // calls an API to tell FPGA which address of buffer it is listening on
   
     fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa / CL(1));
+    
+        /*
+     uint8_t bit512[64];
+     memcpy(bit512, &buf_pa, 8);
+     bit512[8] = 10;
+     bit512[9] = 25;
+     fpgaWriteMMIO512(accel_handle, 0, 0, (void *)&bit512);
+
+     */
+
+
 
     // Spin, waiting for the value in memory to change to something non-zero.
     // Keeps waiting for non-null char in buffer to see if fpga has written something
