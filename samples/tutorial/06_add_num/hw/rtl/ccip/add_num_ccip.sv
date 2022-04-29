@@ -32,7 +32,7 @@
 `include "afu_json_info.vh"
 
 //
-// CCI-P version of hello world AFU example.
+// CCI-P version of add two numbers AFU example.
 //
 
 module ofs_plat_afu
@@ -278,7 +278,7 @@ module ofs_plat_afu
 
 
     //
-    // Write "Hello world!" to memory when in STATE_RUN.
+    // Write sum to memory when in STATE_RUN.
     //
 
  //****************
