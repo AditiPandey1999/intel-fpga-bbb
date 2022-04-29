@@ -272,7 +272,7 @@ module ofs_plat_afu
     end
 
     // Data to write to memory: little-endian hardcoded ASCII encoding of sum
-    assign host_ccip.sTx.c1.data = t_ccip_clData'('h00011110);
+   assign host_ccip.sTx.c1.data = t_ccip_clData'('h23);
 
     // Control logic for memory writes
     always_ff @(posedge clk)
