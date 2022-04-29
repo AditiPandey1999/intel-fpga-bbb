@@ -155,8 +155,8 @@ int main(int argc, char *argv[])
     
     int a = 10;
     int b = 25;
-    buf[4]= a;
-    buf[8]= b;
+    buf[1]= a;
+    buf[2]= b;
       
    
     // Set the low byte of the shared buffer to 0.  The FPGA will write
