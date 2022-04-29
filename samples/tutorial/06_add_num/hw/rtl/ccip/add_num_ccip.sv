@@ -190,24 +190,7 @@ module ofs_plat_afu
     // organizing the MMIO address space, but it is legal.
 
 //*************
-    logic is_mem_addr_csr_read;
-    assign is_mem_addr_csr_read = is_csr_read &&
-                                   (mmio_req_hdr.address == t_ccip_mmioAddr'(0));
-   
-   t_ccip_clAddr mem_rd_addr1;
-   t_ccip_clAddr mem_rd_addr2;
-   always_ff @(posedge clk)
-   begin
-      if (is_mem_addr_csr_read)
-        begin
-           mem_rd_addr1 <= t_ccip_clAddr'(host_ccip.sTx.c0.data);
-        end
-       if (is_mem_addr_csr_read)
-        begin
-           mem_rd_addr2<= t_ccip_clAddr'(host_ccip.sTx.c0.data);
-        end
-    end
-// *************
+    
    
     logic is_mem_addr_csr_write;
     assign is_mem_addr_csr_write = is_csr_write &&

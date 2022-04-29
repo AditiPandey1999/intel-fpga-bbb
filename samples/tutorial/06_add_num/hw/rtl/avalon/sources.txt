@@ -1,0 +1,3 @@
+../add_num.json
+add_num_avalon.sv
+
