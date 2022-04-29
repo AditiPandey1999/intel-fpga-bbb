@@ -1,3 +1,0 @@
-../hello_world.json
-hello_world_avalon.sv
-../Top.v
