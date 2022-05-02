@@ -270,17 +270,16 @@ module ofs_plat_afu
         // Start of packet is always set for single beat writes
         wr_hdr.sop = 1'b1;
     end
-    
+
     logic [7:0] res;
     logic [7:0] a;
     logic [7:0] b;
      
 
     always @(posedge clk)
-        begin
-            a <= host_ccip.sRx.c0.data[71:64];
-            b <= host_ccip.sRx.c0.data[79:72];
-        end
+    begin
+        a <= host_ccip.sRx.c0.data[71:64];
+        b <= host_ccip.sRx.c0.data[79:72];
     end
 
     assign res = a+b;
