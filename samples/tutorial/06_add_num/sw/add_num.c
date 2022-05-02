@@ -166,18 +166,20 @@ int main(int argc, char *argv[])
     // Tell the accelerator the address of the buffer using cache line
     // addresses.  The accelerator will respond by writing to the buffer.
     // calls an API to tell FPGA which address of buffer it is listening on
+
+
+
   
-    fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa / CL(1));
+    //fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa / CL(1));
+
+    ////////////
+
+    uint8_t bit512[64];//64 numbers of 8 (64 bits) bytes each
+    memcpy(bit512, &buf_pa, 8);//8 bytes aka 64 bit pa
+    bit512[8] = 10;//9th byte
+    bit512[9] = 25;//10th byte
+    fpgaWriteMMIO512(accel_handle, 0, 0, (void *)&bit512);
     
-        /*
-     uint8_t bit512[64];
-     memcpy(bit512, &buf_pa, 8);
-     bit512[8] = 10;
-     bit512[9] = 25;
-     fpgaWriteMMIO512(accel_handle, 0, 0, (void *)&bit512);
-
-     */
-
 
 
     // Spin, waiting for the value in memory to change to something non-zero.
