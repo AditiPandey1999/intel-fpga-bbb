@@ -199,7 +199,7 @@ module ofs_plat_afu
     begin
         if (is_mem_addr_csr_write)
         begin
-            mem_addr <= t_ccip_clAddr'(host_ccip.sRx.c0.data[63:0]);
+            mem_addr <= t_ccip_clAddr'(host_ccip.sRx.c0.data);
         end
     end
     
@@ -270,13 +270,10 @@ module ofs_plat_afu
         // Start of packet is always set for single beat writes
         wr_hdr.sop = 1'b1;
     end
-    integer a= host_ccip.sRx.c0.data[64];
-    integer b= host_ccip.sRx.c0.data[71];
-    integer res= a+b;
 
     // Data to write to memory: little-endian hardcoded ASCII encoding of sum
-    //assign host_ccip.sTx.c1.data = t_ccip_clData'('h23);
-    assign host_ccip.sTx.c1.data = res;
+   assign host_ccip.sTx.c1.data = t_ccip_clData'('h23);
+
     // Control logic for memory writes
     always_ff @(posedge clk)
     begin
