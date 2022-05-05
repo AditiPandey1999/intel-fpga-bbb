@@ -170,29 +170,51 @@ int main(int argc, char *argv[])
 
 
   
-    //fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa / CL(1));
+    fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa / CL(1));
 
     ////////////
 
-    uint8_t bit512[64];//64 numbers of 8 (64 bits) bytes each
+    /*uint8_t bit512[64];//64 numbers of 8 (64 bits) bytes each
     memcpy(bit512, &buf_pa, 8);//8 bytes aka 64 bit pa
     bit512[8] = 10;//9th byte
     bit512[9] = 25;//10th byte
-    fpgaWriteMMIO512(accel_handle, 0, 0, (void *)&bit512);
+    if (FPGA_OK != fpgaWriteMMIO512(accel_handle, 0, 0, (void *)&bit512)) {
+        printf ("FPGA Write failed error %x\n", errno);
+    }*/
     
-
+    printf("buf_pa %x\n", (int)buf_pa);
+   
 
     // Spin, waiting for the value in memory to change to something non-zero.
     // Keeps waiting for non-null char in buffer to see if fpga has written something
-    while ( 0 == buf[0])
+    /*
+    int i = 0;
+    while ( 0 == buf[0] && i != 200)
     {
+	if (i%25 == 0)
+	    printf("Still waiting %d\n", i);
         // A well-behaved program would use _mm_pause(), nanosleep() or
         // equivalent to save power here.
+        i++;
     };
-
+   */
     //Once non-null is seen on memory location, prints contents
     // Print the result written by the FPGA
-    printf("%d\n", buf[0]);
+   
+   
+
+    printf("buf0 %d\n", buf[0]);
+    printf("buf1 %d\n", buf[1]);
+    printf("buf2 %d\n", buf[2]);
+    printf("buf3 %d\n", buf[3]);
+    printf("buf4 %d\n", buf[4]);
+    printf("buf5 %d\n", buf[5]);
+    printf("buf6 %d\n", buf[6]);
+    printf("buf7 %d\n", buf[7]);
+    printf("buf8 %d\n", buf[8]);
+    printf("buf9 %d\n", buf[9]);
+
+    
 
     // Done
     fpgaReleaseBuffer(accel_handle, wsid);
