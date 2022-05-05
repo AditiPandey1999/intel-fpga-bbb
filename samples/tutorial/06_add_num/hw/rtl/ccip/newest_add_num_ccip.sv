@@ -199,7 +199,7 @@ module ofs_plat_afu
     begin
         if (is_mem_addr_csr_write)
         begin
-            mem_addr <= t_ccip_clAddr'(host_ccip.sRx.c0.data[63:0]);
+            mem_addr <= t_ccip_clAddr'(host_ccip.sRx.c0.data);
         end
     end
     
@@ -288,7 +288,7 @@ module ofs_plat_afu
         rd_hdr.req_type = eREQ_RDLINE_I;///****************
 
         // Virtual address (MPF virtual addressing is enabled)
-        rd_hdr.address = rd_addr;
+        rd_hdr.address = mem_addr;
         // Let the FIU pick the channel
         rd_hdr.vc_sel = eVC_VA;
 
@@ -353,12 +353,12 @@ module ofs_plat_afu
                                    (mmio_req_hdr.address == t_ccip_mmioAddr'(0));
 
     // Memory address from which afu will read response**********
-    t_ccip_clAddr mem_read_addr;
+    t_ccip_clAddr mem_addr;
     always_ff @(posedge clk)
     begin
         if (is_mem_addr_csr_read)
         begin
-            mem_read_addr <= t_ccip_clAddr'(host_ccip.sRx.c0.data);
+            mem_addr <= t_ccip_clAddr'(host_ccip.sRx.c0.data);
         end
     end
     
