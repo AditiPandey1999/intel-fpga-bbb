@@ -118,6 +118,8 @@ module ofs_plat_afu
     logic is_csr_read;
     assign is_csr_read = host_ccip.sRx.c0.mmioRdValid;
 
+    
+
     // Is a CSR write request active this cycle?
     logic is_csr_write;
     assign is_csr_write = host_ccip.sRx.c0.mmioWrValid;
@@ -203,6 +205,48 @@ module ofs_plat_afu
         end
     end
     
+    // Construct a memory read request header. 
+    always_comb
+    begin
+        rd_hdr = t_cci_c0_ReqMemHdr'(0);
+        // Read request type
+
+        rd_hdr.req_type = eREQ_RDLINE_I;///****************
+
+        // Virtual address (MPF virtual addressing is enabled)
+        rd_hdr.address = mem_addr;
+        // Let the FIU pick the channel
+        rd_hdr.vc_sel = eVC_VA;
+
+        // Read 1 lines (the size of an entry)
+        //rd_hdr.cl_len = eCL_LEN_1;
+    end
+
+    //Memory Read Response Header
+    always_comb
+    begin
+        rsp_hdr = t_cci_c0_RspMemHdr'(0);
+        // Read request type
+
+        rsp_hdr.rsp_type = eRSP_RDLINE;///****************
+
+        // Let the FIU pick the channel
+        rsp_hdr.vc_used = eVC_VA;
+    end
+
+
+    // Construct a memory write request header.  For this AFU it is always
+    // the same, since we write to only one address.
+    t_ccip_c1_ReqMemHdr wr_hdr;
+    always_comb
+    begin
+        // Zero works for most write request header fields in this example
+        wr_hdr = t_ccip_c1_ReqMemHdr'(0);
+        // Set the write address
+        wr_hdr.address = mem_addr;
+        // Start of packet is always set for single beat writes
+        wr_hdr.sop = 1'b1;
+    end
 
 
     // =========================================================================
@@ -214,10 +258,15 @@ module ofs_plat_afu
     //
     // States in our simple example.
     //
+
+    static int i=0;
+
     typedef enum logic [0:0]
     {
         STATE_IDLE,
-        STATE_RUN
+        STATE_SEND_READ_REQUEST,
+        STATE_READ_RESPONSE,
+        STATE_WRITE
     }
     t_state;
 
@@ -236,42 +285,89 @@ module ofs_plat_afu
         begin
             // Trigger the AFU when mem_addr is set above.  (When the CPU
             // tells us the address to which the FPGA should write a message.)
-            if ((state == STATE_IDLE) && is_mem_addr_csr_read)
+
+            if ((state == STATE_IDLE) && is_mem_addr_csr_write)// you have the address to which you have to write, and therefore corresp read addresses
             begin
-                state <= STATE_READ_REQUEST;
-                $display("AFU sending read request...");
+                state <= STATE_SEND_READ_REQUEST;
+                $display("AFU sending read request...");//for reading first and second number 
             end
 
             // Trigger the AFU when mem_addr is set above, when the CPU tells us the address to which the FPGA should write a message.
-            if (state== STATE_READ_REQUEST)
-                begin    
-                    if (is_mem_addr_csr_write)
+            if (state== STATE_SEND_READ_REQUEST)
+            begin    
+                // Control logic for memory read request *********************
+                always_ff @(posedge clk)
+                begin
+                    if (!reset_n)
                     begin
-                        state <= STATE_READ_RESPONSE;
+                        host_ccip.sTx.c0.valid <= 1'b0;
+                    end
+                    else
+                    begin
+                        host_ccip.sTx.c0.valid <= 1'b1;
+                        host_ccip.sTx.c1.valid <= 1'b0;
+                    end
+
+                    host_ccip.sTx.c0.hdr <= rd_hdr;
+                end
+                i++;//
+                if(cci_c0Rx_isReadRsp(cp2af_sRx.c0))
+                begin
+                    state <= STATE_READ_RESPONSE;
                     $display("AFU reading response...");
                 end
+            end
 
             if (state== STATE_READ_RESPONSE)
-                begin    
-                    if (is_mem_addr_csr_write)
+            begin
+                if(host_ccip.sRx.c0.rspValid)
+                begin
+                    // Memory address from which afu will read response**********
+                    t_ccip_clAddr mem_read_addr=rd_hdr.address;
+                    always_ff @(posedge clk)
                     begin
+                        begin
+                            mem_read_addr <= t_ccip_clAddr'(host_ccip.sRx.c0.data);
+                        end
+                    end
+                    if(i<2) 
+                    begin
+                        state <= STATE_SEND_READ_REQUEST;
+                    end
+                    else
+                    begin   
                         state <= STATE_WRITE;
-                    $display("AFU writing...");
+                    end
+                    
                 end
+            end
 
-             
-                // The AFU completes its task by writing a single line.  When
-                // the line is written return to idle.  The write will happen
-                // as long as the request channel is not full.
+            // The AFU completes its task by writing a single line.  When
+            // the line is written return to idle.  The write will happen
+            // as long as the request channel is not full.
 
             if (state==STATE_WRITE)
+            begin
+                // Control logic for memory writes
+                always_ff @(posedge clk)
                 begin
-                    if ((state == STATE_WRITE) && ! host_ccip.sRx.c1TxAlmFull)
+                    if (!reset_n)
                     begin
-                        state <= STATE_IDLE;
-                        $display("AFU done...");
+                        host_ccip.sTx.c1.valid <= 1'b0;
                     end
+                    else
+                    begin
+                        // Request the write as long as the channel isn't full.
+                        host_ccip.sTx.c1.valid <= (! host_ccip.sRx.c1TxAlmFull);
+                        host_ccip.sTx.c0.valid <= 1'b0;
+                    end
+                    host_ccip.sTx.c1.hdr <= wr_hdr;
+                    state <= STATE_IDLE;
+                    $display("AFU done...");
                 end
+            end
+
+
         end
     end
 
@@ -279,89 +375,14 @@ module ofs_plat_afu
     //
     // Write sum of two numbers (hardcoded) to memory when in STATE_RUN.
     //
-    // Construct a memory read request header. 
-    always_comb
-    begin
-        rd_hdr = t_cci_c0_ReqMemHdr'(0);
-        // Read request type
-
-        rd_hdr.req_type = eREQ_RDLINE_I;///****************
-
-        // Virtual address (MPF virtual addressing is enabled)
-        rd_hdr.address = rd_addr;
-        // Let the FIU pick the channel
-        rd_hdr.vc_sel = eVC_VA;
-
-        // Read 1 lines (the size of an entry)
-        //rd_hdr.cl_len = eCL_LEN_1;
-    end
-    // Construct a memory write request header.  For this AFU it is always
-    // the same, since we write to only one address.
-    t_ccip_c1_ReqMemHdr wr_hdr;
-    always_comb
-    begin
-        // Zero works for most write request header fields in this example
-        wr_hdr = t_ccip_c1_ReqMemHdr'(0);
-        // Set the write address
-        wr_hdr.address = mem_addr;
-        // Start of packet is always set for single beat writes
-        wr_hdr.sop = 1'b1;
-    end
 
 /////////********
 
     logic [7:0] res;
     logic [7:0] a;
     logic [7:0] b;
-     
 
 
-  
-
-
-    // Control logic for memory read request *********************
-    always_ff @(posedge clk)
-    begin
-        if (!reset_n)
-        begin
-            host_ccip.sTx.c0.valid <= 1'b0;
-        end
-        else
-        begin
-            host_ccip.sTx.c0.valid <= (state == STATE_READ_REQUEST);
-            host_ccip.sTx.c1.valid <= 1'b0;
-        end
-
-        host_ccip.sTx.c1.hdr <= wr_hdr;
-    end
-
- 
-
-
-    //Control logic for memory read response
-
-    // CSR write handling.  Host software must tell the AFU the memory address
-    // to which it should be writing.  The address is set by writing a CSR.
-    //
-
-    // We use MMIO address 0 to set the memory address.  The read and
-    // write MMIO spaces are logically separate so we are free to use
-    // whatever we like.  This may not be good practice for cleanly
-    // organizing the MMIO address space, but it is legal.
-    logic is_mem_addr_csr_write;
-    assign is_mem_addr_csr_write = is_csr_write &&
-                                   (mmio_req_hdr.address == t_ccip_mmioAddr'(0));
-
-    // Memory address from which afu will read response**********
-    t_ccip_clAddr mem_read_addr;
-    always_ff @(posedge clk)
-    begin
-        if (is_mem_addr_csr_read)
-        begin
-            mem_read_addr <= t_ccip_clAddr'(host_ccip.sRx.c0.data);
-        end
-    end
-    
     ///******************
     assign a = host_ccip.sRx.c0.data[7:0];
     assign b = host_ccip.sRx.c0.data[15:8];
@@ -370,26 +391,6 @@ module ofs_plat_afu
     // Data to write to memory: little-endian hardcoded ASCII encoding of sum
     //assign host_ccip.sTx.c1.data = t_ccip_clData'('h23);
     assign host_ccip.sTx.c1.data = t_ccip_clData'(res);
-
-    // Control logic for memory writes
-    always_ff @(posedge clk)
-    begin
-        if (!reset_n)
-        begin
-            host_ccip.sTx.c1.valid <= 1'b0;
-        end
-        else
-        begin
-            // Request the write as long as the channel isn't full.
-            host_ccip.sTx.c1.valid <= ((state == STATE_WRITE) &&
-                                       ! host_ccip.sRx.c1TxAlmFull);
-            host_ccip.sTx.c0.valid <= 1'b0;
-        end
-
-        host_ccip.sTx.c1.hdr <= wr_hdr;
-    end
-
- 
 
     //
     // This AFU never makes a read request.
