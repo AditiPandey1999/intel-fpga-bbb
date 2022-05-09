@@ -196,6 +196,7 @@ module ofs_plat_afu
     end
     
     // Construct a memory read request header. 
+     t_ccip_c1_ReqMemHdr rd_hdr;
     always_comb
     begin
         rd_hdr = t_cci_c0_ReqMemHdr'(0);
@@ -282,7 +283,8 @@ module ofs_plat_afu
                 $display("Waiting for AFU receiving response...");
         
             end
-
+            t_ccip_c1_ReqMemHdr rsp_hdr;
+            t_ccip_clData mem_read_data;
             if (state== STATE_READ_RESPONSE)
             begin
                 //Memory Read Response Header
