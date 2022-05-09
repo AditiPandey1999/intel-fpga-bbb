@@ -64,9 +64,8 @@ static fpga_handle connect_to_accel(const char *accel_uuid)
     // Set up a filter that will search for an accelerator
   /*
     fpga_resultfpgaGetProperties(fpga_tokentoken, fpga_properties *prop)
-    Create a fpga_properties object
-    Initializes the memory pointed at by prop to represent a properties object, and populates it with the properties of the resource referred to by token.
-    Individual properties can then be queried using fpgaPropertiesGet*() accessor functions
+    Create a fpga_properties object, Initializes the memory pointed at by prop to represent a properties object,
+    and populates it with the properties of the resource referred to by token.
 */
     fpgaGetProperties(NULL, &filter);
   
@@ -79,7 +78,6 @@ Set the object type of a resource, i.e. the Properties object to modify
 
     // Add the desired UUID to the filter
   /*
-  A UUID (universally unique identifier) is a 128-bit label used for identifying information that needs to be unique within a system or network thereof.
   The uuid_parse() function converts the UUID string specified by in to the internal uuid_t format. 
   int uuid_parse(char *in, uuid_t uu);
   If the input string is parsed successfully, 0 is returned and the UUID is stored in the location pointed to by uu. Otherwise -1 is returned.
@@ -166,28 +164,14 @@ int main(int argc, char *argv[])
     // Tell the accelerator the address of the buffer using cache line
     // addresses.  The accelerator will respond by writing to the buffer.
     // calls an API to tell FPGA which address of buffer it is listening on
-
-
-
   
     fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa / CL(1));
-
-    ////////////
-
-    /*uint8_t bit512[64];//64 numbers of 8 (64 bits) bytes each
-    memcpy(bit512, &buf_pa, 8);//8 bytes aka 64 bit pa
-    bit512[8] = 10;//9th byte
-    bit512[9] = 25;//10th byte
-    if (FPGA_OK != fpgaWriteMMIO512(accel_handle, 0, 0, (void *)&bit512)) {
-        printf ("FPGA Write failed error %x\n", errno);
-    }*/
-    
     printf("buf_pa %x\n", (int)buf_pa);
    
 
     // Spin, waiting for the value in memory to change to something non-zero.
     // Keeps waiting for non-null char in buffer to see if fpga has written something
-    /*
+
     int i = 0;
     while ( 0 == buf[0] && i != 200)
     {
@@ -197,7 +181,7 @@ int main(int argc, char *argv[])
         // equivalent to save power here.
         i++;
     };
-   */
+   
     //Once non-null is seen on memory location, prints contents
     // Print the result written by the FPGA
    
