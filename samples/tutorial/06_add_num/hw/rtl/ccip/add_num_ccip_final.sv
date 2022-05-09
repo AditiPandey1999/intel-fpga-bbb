@@ -180,16 +180,6 @@ module ofs_plat_afu
         end
     end
 
-
-    //
-    // CSR write handling.  Host software must tell the AFU the memory address
-    // to which it should be writing.  The address is set by writing a CSR.
-    //
-
-    // We use MMIO address 0 to set the memory address.  The read and
-    // write MMIO spaces are logically separate so we are free to use
-    // whatever we like.  This may not be good practice for cleanly
-    // organizing the MMIO address space, but it is legal.
     logic is_mem_addr_csr_write;
     assign is_mem_addr_csr_write = is_csr_write &&
                                    (mmio_req_hdr.address == t_ccip_mmioAddr'(0));
@@ -201,7 +191,7 @@ module ofs_plat_afu
     begin
         if (is_mem_addr_csr_write)
         begin
-            mem_addr <= t_ccip_clAddr'(host_ccip.sRx.c0.data[63:0]);
+            mem_addr <= t_ccip_clAddr'(host_ccip.sRx.c0.data);
         end
     end
     
@@ -210,29 +200,14 @@ module ofs_plat_afu
     begin
         rd_hdr = t_cci_c0_ReqMemHdr'(0);
         // Read request type
-
-        rd_hdr.req_type = eREQ_RDLINE_I;///****************
-
+        rd_hdr.req_type = eREQ_RDLINE_I;
         // Virtual address (MPF virtual addressing is enabled)
         rd_hdr.address = mem_addr;
         // Let the FIU pick the channel
         rd_hdr.vc_sel = eVC_VA;
-
-        // Read 1 lines (the size of an entry)
-        //rd_hdr.cl_len = eCL_LEN_1;
     end
 
-    //Memory Read Response Header
-    always_comb
-    begin
-        rsp_hdr = t_cci_c0_RspMemHdr'(0);
-        // Read request type
-
-        rsp_hdr.rsp_type = eRSP_RDLINE;///****************
-
-        // Let the FIU pick the channel
-        rsp_hdr.vc_used = eVC_VA;
-    end
+    
 
 
     // Construct a memory write request header.  For this AFU it is always
@@ -259,7 +234,11 @@ module ofs_plat_afu
     // States in our simple example.
     //
 
-    static int i=0;
+
+    logic [7:0] res;
+    logic [7:0] a;
+    logic [7:0] b;
+
 
     typedef enum logic [0:0]
     {
@@ -295,50 +274,23 @@ module ofs_plat_afu
             // Trigger the AFU when mem_addr is set above, when the CPU tells us the address to which the FPGA should write a message.
             if (state== STATE_SEND_READ_REQUEST)
             begin    
-                // Control logic for memory read request *********************
-                always_ff @(posedge clk)
-                begin
-                    if (!reset_n)
-                    begin
-                        host_ccip.sTx.c0.valid <= 1'b0;
-                    end
-                    else
-                    begin
-                        host_ccip.sTx.c0.valid <= 1'b1;
-                        host_ccip.sTx.c1.valid <= 1'b0;
-                    end
-
-                    host_ccip.sTx.c0.hdr <= rd_hdr;
-                end
-                i++;//
-                if(cci_c0Rx_isReadRsp(cp2af_sRx.c0))
-                begin
-                    state <= STATE_READ_RESPONSE;
-                    $display("AFU reading response...");
-                end
+                // Control logic for memory read request 
+                host_ccip.sTx.c0.hdr <= rd_hdr;
+                host_ccip.sTx.c0.valid <= 1'b1;
+                host_ccip.sTx.c1.valid <= 1'b0;
+                state <= STATE_READ_RESPONSE;
+                $display("Waiting for AFU receiving response...");
+        
             end
 
             if (state== STATE_READ_RESPONSE)
             begin
+                //Memory Read Response Header
                 if(host_ccip.sRx.c0.rspValid)
                 begin
-                    // Memory address from which afu will read response**********
-                    t_ccip_clAddr mem_read_addr=rd_hdr.address;
-                    always_ff @(posedge clk)
-                    begin
-                        begin
-                            mem_read_addr <= t_ccip_clAddr'(host_ccip.sRx.c0.data);
-                        end
-                    end
-                    if(i<2) 
-                    begin
-                        state <= STATE_SEND_READ_REQUEST;
-                    end
-                    else
-                    begin   
-                        state <= STATE_WRITE;
-                    end
-                    
+                    rsp_hdr = t_cci_c0_RspMemHdr'(0);
+                    mem_read_data <= t_ccip_clData'(host_ccip.sRx.c0.data);//doubt
+                    state <= STATE_WRITE;  
                 end
             end
 
@@ -349,52 +301,22 @@ module ofs_plat_afu
             if (state==STATE_WRITE)
             begin
                 // Control logic for memory writes
-                always_ff @(posedge clk)
-                begin
-                    if (!reset_n)
-                    begin
-                        host_ccip.sTx.c1.valid <= 1'b0;
-                    end
-                    else
-                    begin
-                        // Request the write as long as the channel isn't full.
-                        host_ccip.sTx.c1.valid <= (! host_ccip.sRx.c1TxAlmFull);
-                        host_ccip.sTx.c0.valid <= 1'b0;
-                    end
-                    host_ccip.sTx.c1.hdr <= wr_hdr;
-                    state <= STATE_IDLE;
-                    $display("AFU done...");
-                end
+                // Request the write as long as the channel isn't full.
+                host_ccip.sTx.c1.hdr <= wr_hdr;
+
+                assign a = mem_read_data[15:8];
+                assign b = mem_read_data[23:16];
+                assign res = a+b;
+                assign host_ccip.sTx.c1.data = t_ccip_clData'(res);
+
+                host_ccip.sTx.c1.valid <= (! host_ccip.sRx.c1TxAlmFull);
+                host_ccip.sTx.c0.valid <= 1'b0;
+                    
+                state <= STATE_IDLE;
+                $display("AFU done...");
+            
             end
-
-
         end
     end
-
-
-    //
-    // Write sum of two numbers (hardcoded) to memory when in STATE_RUN.
-    //
-
-/////////********
-
-    logic [7:0] res;
-    logic [7:0] a;
-    logic [7:0] b;
-
-
-    ///******************
-    assign a = host_ccip.sRx.c0.data[7:0];
-    assign b = host_ccip.sRx.c0.data[15:8];
-    assign res = a+b;
-
-    // Data to write to memory: little-endian hardcoded ASCII encoding of sum
-    //assign host_ccip.sTx.c1.data = t_ccip_clData'('h23);
-    assign host_ccip.sTx.c1.data = t_ccip_clData'(res);
-
-    //
-    // This AFU never makes a read request.
-    //
-    //assign host_ccip.sTx.c0.valid = 1'b0;//****************
 
 endmodule
