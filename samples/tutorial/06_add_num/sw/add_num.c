@@ -134,8 +134,8 @@ static volatile void* alloc_buffer(fpga_handle accel_handle,
 int main(int argc, char *argv[])
 {
     //Search for an accelerator matching the requested UUID and connect to it.
-    int a = 10;
-    int b = 25;
+    int a = 7;
+    int b = 5;
     fpga_handle accel_handle;
     volatile char *buf;
     uint64_t wsid; //uniquely identify the buffer once the buffer is created (or "prepared")
