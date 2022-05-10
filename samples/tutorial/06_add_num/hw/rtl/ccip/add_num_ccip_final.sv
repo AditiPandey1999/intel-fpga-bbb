@@ -271,7 +271,7 @@ module ofs_plat_afu
             // Trigger the AFU when mem_addr is set above.  (When the CPU
             // tells us the address to which the FPGA should write a message.)
 
-            if (state == STATE_IDLE) && is_mem_addr_csr_write)// you have the address to which you have to write, and therefore corresp read addresses
+            if ((state == STATE_IDLE) && (is_mem_addr_csr_write))// you have the address to which you have to write, and therefore corresp read addresses
             begin
                 state <= STATE_SEND_READ_REQUEST;
                 $display("AFU sending read request...");//for reading first and second number 
