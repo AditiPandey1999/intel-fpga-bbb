@@ -265,6 +265,8 @@ module ofs_plat_afu
         if (!reset_n)
         begin
             state <= STATE_IDLE;
+            host_ccip.sTx.c1.valid <= 1'b0;
+            host_ccip.sTx.c0.valid <= 1'b0;
         end
         else
         begin
