@@ -271,7 +271,7 @@ module ofs_plat_afu
             // Trigger the AFU when mem_addr is set above.  (When the CPU
             // tells us the address to which the FPGA should write a message.)
 
-            if ((state == STATE_IDLE) && is_mem_addr_csr_write)// you have the address to which you have to write, and therefore corresp read addresses
+            if (state == STATE_IDLE) && is_mem_addr_csr_write)// you have the address to which you have to write, and therefore corresp read addresses
             begin
                 state <= STATE_SEND_READ_REQUEST;
                 $display("AFU sending read request...");//for reading first and second number 
@@ -310,10 +310,10 @@ module ofs_plat_afu
                 // Request the write as long as the channel isn't full.
                 host_ccip.sTx.c1.hdr <= wr_hdr;
 
-                assign a = mem_read_data[15:8];
-                assign b = mem_read_data[23:16];
-                assign res = a+b;
-                assign host_ccip.sTx.c1.data = t_ccip_clData'(res);
+                a = mem_read_data[15:8];
+                b = mem_read_data[23:16];
+                res = a+b;
+                host_ccip.sTx.c1.data = t_ccip_clData'(res);
 
                 host_ccip.sTx.c1.valid <= (! host_ccip.sRx.c1TxAlmFull);
                 host_ccip.sTx.c0.valid <= 1'b0;
