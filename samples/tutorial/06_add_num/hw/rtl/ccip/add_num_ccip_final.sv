@@ -201,11 +201,12 @@ module ofs_plat_afu
     begin
         rd_hdr = t_ccip_c0_ReqMemHdr'(0);
         // Read request type
-        //rd_hdr.req_type = eREQ_RDLINE_I;
+        rd_hdr.req_type = 4'h0;
         // Virtual address (MPF virtual addressing is enabled)
         rd_hdr.address = mem_addr;
         // Let the FIU pick the channel
-        rd_hdr.vc_sel = eVC_VA;
+        rd_hdr.vc_sel = 2'b00;
+        rd_hdr.cl_len= 2’b00;
     end
 
     
@@ -296,8 +297,11 @@ module ofs_plat_afu
                 //Memory Read Response Header
                 if(host_ccip.sRx.c0.rspValid)
                 begin
+                    $display(" AFU received response...");
                     rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
                     mem_read_data <= t_ccip_clData'(host_ccip.sRx.c0.data);//doubt
+                    $display(" num 1 %d, num 2 %d",
+                                 mem_read_data[15:8], mem_read_data[23:16]);
                     state <= STATE_WRITE;  
                 end
             end
@@ -306,15 +310,15 @@ module ofs_plat_afu
             // the line is written return to idle.  The write will happen
             // as long as the request channel is not full.
 
-            a = mem_read_data[15:8];
-            b = mem_read_data[23:16];
-            res = a+b;
+           
 
             if (state==STATE_WRITE)
             begin
                 // Control logic for memory writes
                 // Request the write as long as the channel isn't full.
-
+                a = mem_read_data[15:8];
+                b = mem_read_data[23:16];
+                res = a+b;
                 host_ccip.sTx.c1.hdr <= wr_hdr;
                 host_ccip.sTx.c1.data <= t_ccip_clData'(res);
                 host_ccip.sTx.c1.valid <= (! host_ccip.sRx.c1TxAlmFull);
