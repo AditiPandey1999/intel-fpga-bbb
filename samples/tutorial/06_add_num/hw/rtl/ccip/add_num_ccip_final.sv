@@ -199,9 +199,9 @@ module ofs_plat_afu
      t_ccip_c0_ReqMemHdr rd_hdr;
     always_comb
     begin
-        rd_hdr = t_cci_c0_ReqMemHdr'(0);
+        rd_hdr = t_ccip_c0_ReqMemHdr'(0);
         // Read request type
-        rd_hdr.req_type = eREQ_RDLINE_I;
+        //rd_hdr.req_type = eREQ_RDLINE_I;
         // Virtual address (MPF virtual addressing is enabled)
         rd_hdr.address = mem_addr;
         // Let the FIU pick the channel
@@ -255,6 +255,11 @@ module ofs_plat_afu
     //
     // State machine
     //
+    t_ccip_c0_RspMemHdr rsp_hdr;////
+    //logic  mem_read_data[31:0];///
+    t_ccip_clData mem_read_data;
+
+
     always_ff @(posedge clk)
     begin
         if (!reset_n)
@@ -283,14 +288,13 @@ module ofs_plat_afu
                 $display("Waiting for AFU receiving response...");
         
             end
-            t_ccip_c0_RspMemHdr rsp_hdr;
-            t_ccip_clData mem_read_data;
+
             if (state== STATE_READ_RESPONSE)
             begin
                 //Memory Read Response Header
                 if(host_ccip.sRx.c0.rspValid)
                 begin
-                    rsp_hdr = t_cci_c0_RspMemHdr'(0);
+                    rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
                     mem_read_data <= t_ccip_clData'(host_ccip.sRx.c0.data);//doubt
                     state <= STATE_WRITE;  
                 end
