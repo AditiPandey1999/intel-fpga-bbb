@@ -249,7 +249,7 @@ module ofs_plat_afu
     logic [7:0] b;
 
 
-    typedef enum logic [1:0]
+    typedef enum logic [4:0]
     {
         STATE_IDLE,
         STATE_SEND_READ_REQUEST,
