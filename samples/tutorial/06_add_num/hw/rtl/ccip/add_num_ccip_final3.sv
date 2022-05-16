@@ -249,7 +249,7 @@ module ofs_plat_afu
     logic [7:0] b;
 
 
-    typedef enum logic [4:0]
+    typedef enum logic [3:0]
     {
         STATE_IDLE,
         STATE_SEND_READ_REQUEST,
@@ -281,7 +281,7 @@ module ofs_plat_afu
         begin
             // Trigger the AFU when mem_addr is set above.  (When the CPU
             // tells us the address to which the FPGA should write a message.)
-          if ((state == STATE_IDLE) && (is_mem_addr_csr_write))// you have the address to which you have to write, and therefore corresp read addresses
+           if ((state == STATE_IDLE) && (is_mem_addr_csr_write))// you have the address to which you have to write, and therefore corresp read addresses
             begin
                 state <= STATE_SEND_READ_REQUEST;
                 $display("AFU sending read request...");//for reading first and second number 
@@ -325,15 +325,13 @@ module ofs_plat_afu
             // the line is written return to idle.  The write will happen
             // as long as the request channel is not full.
 
-           
 
             if (state==STATE_WRITE)
             begin
                 // Control logic for memory writes
                 // Request the write as long as the channel isn't full.
-                res <= a+b;
                 host_ccip.sTx.c1.hdr <= wr_hdr;
-                host_ccip.sTx.c1.data <= t_ccip_clData'(res);
+                host_ccip.sTx.c1.data <= t_ccip_clData'(a+b);
                 host_ccip.sTx.c1.valid <= (! host_ccip.sRx.c1TxAlmFull);
                 host_ccip.sTx.c0.valid <= 1'b0;
                     
