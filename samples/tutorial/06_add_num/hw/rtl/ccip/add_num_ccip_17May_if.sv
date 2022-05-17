@@ -211,7 +211,7 @@ module ofs_plat_afu
         // Virtual address (MPF virtual addressing is enabled)
         rd_hdr.address = mem_addr;
         // Let the FIU pick the channel
-        //rd_hdr.vc_sel = t_ccip_vc\2'h0;
+        rd_hdr.vc_sel = t_ccip_vc(2'h0);
 
         rd_hdr.cl_len = t_ccip_clLen(2'h0);
     end
@@ -284,14 +284,14 @@ module ofs_plat_afu
            if ((state == STATE_IDLE) && (is_mem_addr_csr_write))// you have the address to which you have to write, and therefore corresp read addresses
             begin
                 host_ccip.sTx.c0.hdr <= rd_hdr;
-                //state <= STATE_SEND_READ_REQUEST;
-                state <= STATE_NUM;
-                $display("AFU sending read request...");//for reading first and second number //1
+                //state <= STATE_NUM;
+                state <= STATE_SEND_READ_REQUEST;
+                $display("AFU sending read request..."); //for reading first and second number //1
             end
 
             
-            /*// Trigger the AFU when mem_addr is set above, when the CPU tells us the address to which the FPGA should write a message.
-            if (state== STATE_SEND_READ_REQUEST)
+            // Trigger the AFU when mem_addr is set above, when the CPU tells us the address to which the FPGA should write a message.
+            else if (state== STATE_SEND_READ_REQUEST)
             begin    
                 // Control logic for memory read request 
                 
@@ -302,7 +302,7 @@ module ofs_plat_afu
         
             end
 
-            if (state== STATE_READ_RESPONSE)
+            else if (state== STATE_READ_RESPONSE)
             begin
                 //Memory Read Response Header
                 if(host_ccip.sRx.c0.rspValid)
@@ -310,13 +310,12 @@ module ofs_plat_afu
                     $display(" AFU received response...");
                     rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
                     mem_read_data <= t_ccip_clData'(host_ccip.sRx.c0.data);
-                    //$display(" num 1 %d, num 2 %d", mem_read_data[15:8], mem_read_data[23:16]);
+                    $display(" num 1 %d, num 2 %d", mem_read_data[15:8], mem_read_data[23:16]);
                     state <= STATE_NUM;
                 end
             end
-         */
 
-            if (state == STATE_NUM)
+            else if (state == STATE_NUM)
             begin
                 /*
                 a <= mem_read_data[15:8];
@@ -331,7 +330,7 @@ module ofs_plat_afu
             // as long as the request channel is not full.
 
 
-            if (state==STATE_WRITE)
+            else if (state==STATE_WRITE)
             begin
                 // Control logic for memory writes
                 // Request the write as long as the channel isn't full.

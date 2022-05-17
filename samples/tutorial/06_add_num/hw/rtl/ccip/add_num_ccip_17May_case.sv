@@ -211,7 +211,7 @@ module ofs_plat_afu
         // Virtual address (MPF virtual addressing is enabled)
         rd_hdr.address = mem_addr;
         // Let the FIU pick the channel
-        //rd_hdr.vc_sel = t_ccip_vc\2'h0;
+        rd_hdr.vc_sel = t_ccip_vc(2'h0);
 
         rd_hdr.cl_len = t_ccip_clLen(2'h0);
     end
@@ -279,71 +279,73 @@ module ofs_plat_afu
         end
         else
         begin
-            // Trigger the AFU when mem_addr is set above.  (When the CPU
-            // tells us the address to which the FPGA should write a message.)
-           if ((state == STATE_IDLE) && (is_mem_addr_csr_write))// you have the address to which you have to write, and therefore corresp read addresses
-            begin
-                host_ccip.sTx.c0.hdr <= rd_hdr;
-                //state <= STATE_SEND_READ_REQUEST;
-                state <= STATE_NUM;
-                $display("AFU sending read request...");//for reading first and second number //1
-            end
+             case (state)
+                STATE_IDLE:
+                    // Trigger the AFU when mem_addr is set above.  (When the CPU
+                    // tells us the address to which the FPGA should write a message.)
+                    if (is_mem_addr_csr_write)// you have the address to which you have to write, and therefore corresp read addresses
+                    begin
+                        host_ccip.sTx.c0.hdr <= rd_hdr;
+                        //state <= STATE_SEND_READ_REQUEST;
+                        state <= STATE_SEND_READ_REQUEST;
+                        $display("AFU sending read request..."); //for reading first and second number //1
+                    end
 
-            
-            /*// Trigger the AFU when mem_addr is set above, when the CPU tells us the address to which the FPGA should write a message.
-            if (state== STATE_SEND_READ_REQUEST)
-            begin    
-                // Control logic for memory read request 
-                
-                host_ccip.sTx.c0.valid <= 1'b1;
-                host_ccip.sTx.c1.valid <= 1'b0;
-                state <= STATE_READ_RESPONSE;
-                $display("Waiting for AFU receiving response...");
-        
-            end
-
-            if (state== STATE_READ_RESPONSE)
-            begin
-                //Memory Read Response Header
-                if(host_ccip.sRx.c0.rspValid)
-                begin
-                    $display(" AFU received response...");
-                    rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
-                    mem_read_data <= t_ccip_clData'(host_ccip.sRx.c0.data);
-                    //$display(" num 1 %d, num 2 %d", mem_read_data[15:8], mem_read_data[23:16]);
-                    state <= STATE_NUM;
-                end
-            end
-         */
-
-            if (state == STATE_NUM)
-            begin
-                /*
-                a <= mem_read_data[15:8];
-                b <= mem_read_data[23:16];
-                $display(" num 1 %d, num 2 %d", a, b) */
-                host_ccip.sTx.c1.data <= t_ccip_clData'(50);//2 
-                state <= STATE_WRITE;
-            end
-
-            // The AFU completes its task by writing a single line.  When
-            // the line is written return to idle.  The write will happen
-            // as long as the request channel is not full.
-
-
-            if (state==STATE_WRITE)
-            begin
-                // Control logic for memory writes
-                // Request the write as long as the channel isn't full.
-                host_ccip.sTx.c1.hdr <= wr_hdr;
-                //host_ccip.sTx.c1.data <= t_ccip_clData'(a);
-                host_ccip.sTx.c1.valid <= (! host_ccip.sRx.c1TxAlmFull);
-                host_ccip.sTx.c0.valid <= 1'b0;
                     
-                state <= STATE_IDLE;
-                $display("AFU done...");
-            
-            end
+                    // Trigger the AFU when mem_addr is set above, when the CPU tells us the address to which the FPGA should write a message.
+                    STATE_SEND_READ_REQUEST:
+                    begin    
+                        // Control logic for memory read request 
+                        
+                        host_ccip.sTx.c0.valid <= 1'b1;
+                        host_ccip.sTx.c1.valid <= 1'b0;
+                        state <= STATE_READ_RESPONSE;
+                        $display("Waiting for AFU receiving response...");
+                
+                    end
+
+                    STATE_READ_RESPONSE:
+                    begin
+                        //Memory Read Response Header
+                        if(host_ccip.sRx.c0.rspValid)
+                        begin
+                            $display(" AFU received response...");
+                            rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
+                            mem_read_data <= t_ccip_clData'(host_ccip.sRx.c0.data);
+                            $display(" num 1 %d, num 2 %d", mem_read_data[15:8], mem_read_data[23:16]);
+                            state <= STATE_NUM;
+                        end
+                    end
+
+                    STATE_NUM:
+                    begin
+                        /*
+                        a <= mem_read_data[15:8];
+                        b <= mem_read_data[23:16];
+                        $display(" num 1 %d, num 2 %d", a, b) */
+                        host_ccip.sTx.c1.data <= t_ccip_clData'(50);//2 
+                        state <= STATE_WRITE;
+                    end
+
+                    // The AFU completes its task by writing a single line.  When
+                    // the line is written return to idle.  The write will happen
+                    // as long as the request channel is not full.
+
+
+                    STATE_WRITE:
+                    begin
+                        // Control logic for memory writes
+                        // Request the write as long as the channel isn't full.
+                        host_ccip.sTx.c1.hdr <= wr_hdr;
+                        //host_ccip.sTx.c1.data <= t_ccip_clData'(a);
+                        host_ccip.sTx.c1.valid <= (! host_ccip.sRx.c1TxAlmFull);
+                        host_ccip.sTx.c0.valid <= 1'b0;
+                            
+                        state <= STATE_IDLE;
+                        $display("AFU done...");
+                    
+                    end
+             endcase
         end
     end
 
