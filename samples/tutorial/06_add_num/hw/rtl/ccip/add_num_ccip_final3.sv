@@ -290,7 +290,7 @@ module ofs_plat_afu
             end
 
             
-            // Trigger the AFU when mem_addr is set above, when the CPU tells us the address to which the FPGA should write a message.
+            /*// Trigger the AFU when mem_addr is set above, when the CPU tells us the address to which the FPGA should write a message.
             if (state== STATE_SEND_READ_REQUEST)
             begin    
                 // Control logic for memory read request 
@@ -314,7 +314,7 @@ module ofs_plat_afu
                     state <= STATE_NUM;
                 end
             end
-
+         */
 
             if (state == STATE_NUM)
             begin
