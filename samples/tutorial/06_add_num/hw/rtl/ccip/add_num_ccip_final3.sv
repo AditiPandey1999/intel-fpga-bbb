@@ -283,15 +283,18 @@ module ofs_plat_afu
             // tells us the address to which the FPGA should write a message.)
            if ((state == STATE_IDLE) && (is_mem_addr_csr_write))// you have the address to which you have to write, and therefore corresp read addresses
             begin
-                state <= STATE_SEND_READ_REQUEST;
-                $display("AFU sending read request...");//for reading first and second number 
+                host_ccip.sTx.c0.hdr <= rd_hdr;
+                //state <= STATE_SEND_READ_REQUEST;
+                state <= STATE_NUM;
+                $display("AFU sending read request...");//for reading first and second number //1
             end
 
+            
             // Trigger the AFU when mem_addr is set above, when the CPU tells us the address to which the FPGA should write a message.
             if (state== STATE_SEND_READ_REQUEST)
             begin    
                 // Control logic for memory read request 
-                host_ccip.sTx.c0.hdr <= rd_hdr;
+                
                 host_ccip.sTx.c0.valid <= 1'b1;
                 host_ccip.sTx.c1.valid <= 1'b0;
                 state <= STATE_READ_RESPONSE;
@@ -319,7 +322,7 @@ module ofs_plat_afu
                 a <= mem_read_data[15:8];
                 b <= mem_read_data[23:16];
                 $display(" num 1 %d, num 2 %d", a, b) */
-                host_ccip.sTx.c1.data <= t_ccip_clData'(50);
+                host_ccip.sTx.c1.data <= t_ccip_clData'(50);//2 
                 state <= STATE_WRITE;
             end
 
@@ -345,3 +348,21 @@ module ofs_plat_afu
     end
 
 endmodule
+
+/*
+
+CPU --> Write mem-addr (read inputs and write output) --> FPGA (S1)
+FPGA --> i received a read (MMioRdValid), mem_addr = what i got from cpu
+num1 and num2 ?
+FPGA -> read contents of mem_addr -- CCIP read req from FPGA to CPU
+FPGA --> waits for resp
+*/
+
+
+
+
+
+
+
+
+
