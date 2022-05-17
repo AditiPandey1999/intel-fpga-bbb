@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
     int i = 0;
     while ( 0 == buf[0] && i !=100000000)
     {
-	if (i%25 == 0)
+	if (i%1000 == 0)
 	    printf("Still waiting %d\n", i);
         // A well-behaved program would use _mm_pause(), nanosleep() or
         // equivalent to save power here.
