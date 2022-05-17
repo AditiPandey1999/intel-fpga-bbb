@@ -207,13 +207,13 @@ module ofs_plat_afu
     begin
         rd_hdr = t_ccip_c0_ReqMemHdr'(0);
         // Read request type
-        //rd_hdr.req_type = t_ccip_clLen(4'h0);
+        rd_hdr.req_type = eREQ_RDLINE_I;
         // Virtual address (MPF virtual addressing is enabled)
         rd_hdr.address = mem_addr;
         // Let the FIU pick the channel
         //rd_hdr.vc_sel = t_ccip_vc(2'h0);
 
-        //rd_hdr.cl_len = t_ccip_clLen(2'h0);
+        rd_hdr.cl_len = t_ccip_clLen(2'h0);
     end
 
     
