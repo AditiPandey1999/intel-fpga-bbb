@@ -307,8 +307,7 @@ module ofs_plat_afu
                     $display(" AFU received response...");
                     rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
                     mem_read_data <= t_ccip_clData'(host_ccip.sRx.c0.data);
-                    $display(" num 1 %d, num 2 %d",
-                                 mem_read_data[15:8], mem_read_data[23:16]);
+                    //$display(" num 1 %d, num 2 %d", mem_read_data[15:8], mem_read_data[23:16]);
                     state <= STATE_NUM;
                 end
             end
@@ -316,8 +315,11 @@ module ofs_plat_afu
 
             if (state == STATE_NUM)
             begin
+                /*
                 a <= mem_read_data[15:8];
                 b <= mem_read_data[23:16];
+                $display(" num 1 %d, num 2 %d", a, b) */
+                host_ccip.sTx.c1.data <= t_ccip_clData'(50);
                 state <= STATE_WRITE;
             end
 
@@ -331,7 +333,7 @@ module ofs_plat_afu
                 // Control logic for memory writes
                 // Request the write as long as the channel isn't full.
                 host_ccip.sTx.c1.hdr <= wr_hdr;
-                host_ccip.sTx.c1.data <= t_ccip_clData'(a);
+                //host_ccip.sTx.c1.data <= t_ccip_clData'(a);
                 host_ccip.sTx.c1.valid <= (! host_ccip.sRx.c1TxAlmFull);
                 host_ccip.sTx.c0.valid <= 1'b0;
                     
