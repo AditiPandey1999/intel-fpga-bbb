@@ -285,7 +285,7 @@ module ofs_plat_afu
             begin
                 host_ccip.sTx.c0.hdr <= rd_hdr;
                 //state <= STATE_NUM;
-                state <= STATE_NUM;
+                state <= STATE_SEND_READ_REQUEST;
                 $display("AFU sending read request..."); //for reading first and second number //1
             end
 
@@ -298,8 +298,8 @@ module ofs_plat_afu
                 host_ccip.sTx.c0.valid <= 1'b1;
                 host_ccip.sTx.c1.valid <= 1'b0;
                 state <= STATE_READ_RESPONSE;
+                //state <= STATE_NUM;
                 $display("Waiting for AFU receiving response...");
-        
             end
 
             else if (state== STATE_READ_RESPONSE)
@@ -310,7 +310,8 @@ module ofs_plat_afu
                     $display(" AFU received response...");
                     rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
                     mem_read_data <= t_ccip_clData'(host_ccip.sRx.c0.data);
-                    $display(" num 1 %d, num 2 %d", mem_read_data[15:8], mem_read_data[23:16]);
+                    //$display(" num 1 %d, num 2 %d", mem_read_data[15:8], mem_read_data[23:16]);
+                    $display( mem_read_data);
                     state <= STATE_NUM;
                 end
             end
