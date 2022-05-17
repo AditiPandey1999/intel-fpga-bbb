@@ -285,7 +285,7 @@ module ofs_plat_afu
             begin
                 host_ccip.sTx.c0.hdr <= rd_hdr;
                 //state <= STATE_NUM;
-                state <= STATE_SEND_READ_REQUEST;
+                state <= STATE_NUM;
                 $display("AFU sending read request..."); //for reading first and second number //1
             end
 
