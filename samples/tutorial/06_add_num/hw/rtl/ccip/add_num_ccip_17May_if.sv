@@ -213,7 +213,8 @@ module ofs_plat_afu
         // Let the FIU pick the channel
         //rd_hdr.vc_sel = t_ccip_vc(2'h0);
 
-        rd_hdr.cl_len = 2'h0;
+        //rd_hdr.cl_len = 2'h0;
+        cast(rd_hdr.cl_len,0);
     end
 
     
