@@ -211,7 +211,7 @@ module ofs_plat_afu
         // Virtual address (MPF virtual addressing is enabled)
         rd_hdr.address = mem_addr;
         // Let the FIU pick the channel
-        rd_hdr.vc_sel = t_ccip_vc(2'h0);
+        //rd_hdr.vc_sel = t_ccip_vc(2'h0);
 
         rd_hdr.cl_len = t_ccip_clLen(2'h0);
     end
