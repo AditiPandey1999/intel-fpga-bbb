@@ -255,8 +255,8 @@ module ofs_plat_afu
         STATE_IDLE,
         STATE_SEND_READ_REQUEST,
         STATE_READ_RESPONSE,
-        STATE_NUM,
-        STATE_ADD,
+        //STATE_NUM,
+        //STATE_ADD,
         STATE_WRITE
     }
     t_state;
@@ -268,7 +268,7 @@ module ofs_plat_afu
     //
     t_ccip_c0_RspMemHdr rsp_hdr;////
     //logic  mem_read_data[31:0];///
-    t_ccip_clData mem_read_data;
+   // t_ccip_clData mem_read_data;
 
 
     always_ff @(posedge clk)
@@ -287,8 +287,8 @@ module ofs_plat_afu
             begin
                 host_ccip.sTx.c0.hdr <= rd_hdr;
                 //state <= STATE_NUM;
-                state <= STATE_NUM;
-                $display("AFU going to num..."); //for reading first and second number //1
+                state <= STATE_WRITE;
+                $display("AFU going to write..."); //for reading first and second number //1
             end
 
             
@@ -324,19 +324,18 @@ module ofs_plat_afu
                     host_ccip.sTx.c1.data <= t_ccip_clData'(40);
                     state <= STATE_NUM;
                 end
-            end */
+            end 
 
-            else if (state == STATE_NUM)
+           else if (state == STATE_NUM)
             begin
             
-               /* mem_read_data <=  t_ccip_clData'(host_ccip.sRx.c0.data);
                 a <= mem_read_data[15:8];
-                b <= mem_read_data[23:16];*/
+                b <= mem_read_data[23:16];
                 $display("state num, two numbers: ");
                 //$display(a);
                 //$display(b);
                 state <= STATE_ADD;
-            end
+            end       
 
             // The AFU completes its task by writing a single line.  When
             // the line is written return to idle.  The write will happen
@@ -347,6 +346,7 @@ module ofs_plat_afu
                 state <= STATE_WRITE;
                 $display("state add");
             end
+            */
 
             else if (state==STATE_WRITE && (!host_ccip.sRx.c1TxAlmFull))
             begin
