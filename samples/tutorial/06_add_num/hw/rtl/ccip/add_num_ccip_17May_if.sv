@@ -310,7 +310,7 @@ module ofs_plat_afu
                 begin
                     host_ccip.sTx.c1.data <= t_ccip_clData'(30);
                     $display(" AFU received response...");
-                    rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
+                    //rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
                     mem_read_data <= t_ccip_clData'(host_ccip.sRx.c0.data);
                     //$display(" num 1 %d, num 2 %d", mem_read_data[15:8], mem_read_data[23:16]);
                     $display( mem_read_data);
@@ -318,7 +318,7 @@ module ofs_plat_afu
                 end
                 else
                 begin
-                    rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
+                    //rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
                     host_ccip.sTx.c1.data <= t_ccip_clData'(40);
                     state <= STATE_NUM;
                 end
