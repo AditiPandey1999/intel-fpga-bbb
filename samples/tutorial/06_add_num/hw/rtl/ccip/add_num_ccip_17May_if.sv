@@ -332,8 +332,9 @@ module ofs_plat_afu
                 mem_read_data <=  t_ccip_clData'(host_ccip.sRx.c0.data);
                 a <= mem_read_data[15:8];
                 b <= mem_read_data[23:16];
-                $display(" num 1 %d, num 2 %d", a, b);
-                $display("state num");
+                $display("state num, two numbers: ");
+                $display(a);
+                $display(b);
                 state <= STATE_ADD;
             end
 
