@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
     // Keeps waiting for non-null char in buffer to see if fpga has written something
 
     int i = 0;
-    while ( 0 == buf[0] && i !=100000000)
+    while ( 0 == buf[0] )//&& i !=10000000000)
     {
 	if (i%1000 == 0)
 	    printf("Still waiting %d\n", i);
