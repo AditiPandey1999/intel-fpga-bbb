@@ -341,7 +341,7 @@ module ofs_plat_afu
             // The AFU completes its task by writing a single line.  When
             // the line is written return to idle.  The write will happen
             // as long as the request channel is not full.
-            else if (state= STATE_ADD)
+            else if (state==STATE_ADD)
             begin
                 //res <= a+b;
                 state <= STATE_WRITE;
