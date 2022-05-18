@@ -329,12 +329,12 @@ module ofs_plat_afu
             else if (state == STATE_NUM)
             begin
             
-                mem_read_data <=  t_ccip_clData'(host_ccip.sRx.c0.data);
+               /* mem_read_data <=  t_ccip_clData'(host_ccip.sRx.c0.data);
                 a <= mem_read_data[15:8];
-                b <= mem_read_data[23:16];
+                b <= mem_read_data[23:16];*/
                 $display("state num, two numbers: ");
-                $display(a);
-                $display(b);
+                //$display(a);
+                //$display(b);
                 state <= STATE_ADD;
             end
 
@@ -343,7 +343,7 @@ module ofs_plat_afu
             // as long as the request channel is not full.
             else if (state= STATE_ADD)
             begin
-                res <= a+b;
+                //res <= a+b;
                 state <= STATE_WRITE;
                 $display("state add");
             end
