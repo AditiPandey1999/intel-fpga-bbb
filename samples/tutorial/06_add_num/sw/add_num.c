@@ -192,11 +192,13 @@ int main(int argc, char *argv[])
     printf("buf2 %d\n", buf[2]);
     printf("buf3 %d\n", buf[3]);
     printf("buf4 %d\n", buf[4]);
+   /* 
     printf("buf5 %d\n", buf[5]);
     printf("buf6 %d\n", buf[6]);
     printf("buf7 %d\n", buf[7]);
     printf("buf8 %d\n", buf[8]);
-    printf("buf9 %d\n", buf[9]);
+    printf("buf9 %d\n", buf[9]); 
+    */
 
     
 
