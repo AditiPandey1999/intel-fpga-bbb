@@ -345,7 +345,7 @@ module ofs_plat_afu
             begin
                 // Control logic for memory writes
                 // Request the write as long as the channel isn't full.
-                //host_ccip.sTx.c1.data <= t_ccip_clData'(a);
+                host_ccip.sTx.c1.data <= t_ccip_clData'(50);
                 host_ccip.sTx.c1.valid <= 1'b1;
                 host_ccip.sTx.c0.valid <= 1'b0;  
                 state <= STATE_IDLE;

@@ -172,8 +172,8 @@ int main(int argc, char *argv[])
     // Spin, waiting for the value in memory to change to something non-zero.
     // Keeps waiting for non-null char in buffer to see if fpga has written something
 
-    int i = 0;
-    while ( 0 == buf[0] && (i !=100000000000))
+    unsigned int i = 0;
+    while ( 0 == buf[0] && (i !=0xffffffff))
     {
 	if (i%100000 == 0)
 	    printf("Still waiting %d\n", i);
