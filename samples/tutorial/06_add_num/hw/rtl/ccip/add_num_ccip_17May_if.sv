@@ -244,11 +244,11 @@ module ofs_plat_afu
     // States in our simple example.
     //
 
-
+/*
     logic [7:0] res;
     logic [7:0] a;
     logic [7:0] b;
-
+*/
 
     typedef enum logic [3:0]
     {
@@ -353,7 +353,7 @@ module ofs_plat_afu
                 // Control logic for memory writes
                 // Request the write as long as the channel isn't full.
                 host_ccip.sTx.c1.hdr <= wr_hdr;
-                host_ccip.sTx.c1.data <= t_ccip_clData'(res);
+                host_ccip.sTx.c1.data <= t_ccip_clData'(50);
                 host_ccip.sTx.c1.valid <= 1'b1;
                 host_ccip.sTx.c0.valid <= 1'b0;  
                 state <= STATE_IDLE;
