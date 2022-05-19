@@ -287,12 +287,12 @@ module ofs_plat_afu
             begin
                 host_ccip.sTx.c0.hdr <= rd_hdr;
                 //state <= STATE_NUM;
-                state <= STATE_NUM;
+                state <= STATE_SEND_READ_REQUEST;
                 $display("AFU going to write..."); //for reading first and second number //1
             end
 
             
-           /* // Trigger the AFU when mem_addr is set above, when the CPU tells us the address to which the FPGA should write a message.
+            // Trigger the AFU when mem_addr is set above, when the CPU tells us the address to which the FPGA should write a message.
             else if (state== STATE_SEND_READ_REQUEST)
             begin    
                 // Control logic for memory read request 
@@ -302,7 +302,7 @@ module ofs_plat_afu
                 state <= STATE_READ_RESPONSE;
                 //state <= STATE_NUM;
                 $display("Waiting for AFU receiving response...");
-            end            */
+            end            
 
             else if (state== STATE_READ_RESPONSE)
             begin
