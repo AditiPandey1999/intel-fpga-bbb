@@ -255,7 +255,7 @@ module ofs_plat_afu
         STATE_IDLE,
         STATE_SEND_READ_REQUEST,
         STATE_READ_RESPONSE,
-        //STATE_NUM,
+        STATE_NUM,
         //STATE_ADD,
         STATE_WRITE
     }
@@ -268,7 +268,7 @@ module ofs_plat_afu
     //
     t_ccip_c0_RspMemHdr rsp_hdr;////
     //logic  mem_read_data[31:0];///
-   // t_ccip_clData mem_read_data;
+    t_ccip_clData mem_read_data;
 
 
     always_ff @(posedge clk)
