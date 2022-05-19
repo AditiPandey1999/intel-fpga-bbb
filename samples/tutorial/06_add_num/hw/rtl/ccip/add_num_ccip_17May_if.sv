@@ -285,7 +285,7 @@ module ofs_plat_afu
             // tells us the address to which the FPGA should write a message.)
            if ((state == STATE_IDLE) && (is_mem_addr_csr_write))// you have the address to which you have to write, and therefore corresp read addresses
             begin
-                host_ccip.sTx.c0.hdr <= rd_hdr;
+                //host_ccip.sTx.c0.hdr <= rd_hdr;
                 //state <= STATE_NUM;
                 state <= STATE_SEND_READ_REQUEST;
                 $display("AFU going to write..."); //for reading first and second number //1
@@ -296,7 +296,7 @@ module ofs_plat_afu
             else if (state== STATE_SEND_READ_REQUEST)
             begin    
                 // Control logic for memory read request 
-                //host_ccip.sTx.c0.hdr <= rd_hdr;
+                host_ccip.sTx.c0.hdr <= rd_hdr;
                 host_ccip.sTx.c0.valid <= 1'b1;
                 host_ccip.sTx.c1.valid <= 1'b0;
                 state <= STATE_READ_RESPONSE;
