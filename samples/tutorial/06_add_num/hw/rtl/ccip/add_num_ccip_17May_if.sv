@@ -287,7 +287,7 @@ module ofs_plat_afu
             begin
                 host_ccip.sTx.c0.hdr <= rd_hdr;
                 //state <= STATE_NUM;
-                state <= STATE_WRITE;
+                state <= STATE_NUM;
                 $display("AFU going to write..."); //for reading first and second number //1
             end
 
@@ -302,7 +302,7 @@ module ofs_plat_afu
                 state <= STATE_READ_RESPONSE;
                 //state <= STATE_NUM;
                 $display("Waiting for AFU receiving response...");
-            end
+            end            */
 
             else if (state== STATE_READ_RESPONSE)
             begin
@@ -346,7 +346,7 @@ module ofs_plat_afu
                 state <= STATE_WRITE;
                 $display("state add");
             end
-            */
+
 
             else if (state==STATE_WRITE && (!host_ccip.sRx.c1TxAlmFull))
             begin
