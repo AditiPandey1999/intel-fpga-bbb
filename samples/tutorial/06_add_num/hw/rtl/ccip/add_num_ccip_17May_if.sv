@@ -296,7 +296,7 @@ module ofs_plat_afu
             else if (state== STATE_SEND_READ_REQUEST)
             begin    
                 // Control logic for memory read request 
-                
+                //host_ccip.sTx.c0.hdr <= rd_hdr;
                 host_ccip.sTx.c0.valid <= 1'b1;
                 host_ccip.sTx.c1.valid <= 1'b0;
                 state <= STATE_READ_RESPONSE;

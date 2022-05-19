@@ -173,10 +173,10 @@ int main(int argc, char *argv[])
     // Keeps waiting for non-null char in buffer to see if fpga has written something
 
     unsigned int i = 0;
-    while ( 0 == buf[0] && (i !=0xffffffff))
+    while ( 0 == buf[0] )//&& (i !=0xffffffff))
     {
 	if (i%100000 == 0)
-	    printf("Still waiting %d\n", i);
+	    printf("Still waiting %u\n", i);
         // A well-behaved program would use _mm_pause(), nanosleep() or
         // equivalent to save power here.
         i++;
