@@ -244,11 +244,11 @@ module ofs_plat_afu
     // States in our simple example.
     //
 
-/*
-    logic [7:0] res;
+
+    //logic [7:0] res;
     logic [7:0] a;
     logic [7:0] b;
-*/
+
 
     typedef enum logic [3:0]
     {
@@ -334,18 +334,18 @@ module ofs_plat_afu
                 $display("state num, two numbers: ");
                 //$display(a);
                 //$display(b);
-                state <= STATE_ADD;
+                state <= STATE_WRITE;
             end       
 
             // The AFU completes its task by writing a single line.  When
             // the line is written return to idle.  The write will happen
             // as long as the request channel is not full.
-            else if (state==STATE_ADD)
+            /*else if (state==STATE_ADD)
             begin
                 //res <= a+b;
                 state <= STATE_WRITE;
                 $display("state add");
-            end
+            end*/
 
 
             else if (state==STATE_WRITE && (!host_ccip.sRx.c1TxAlmFull))
