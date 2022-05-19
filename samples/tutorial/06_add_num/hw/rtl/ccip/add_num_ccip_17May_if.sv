@@ -317,13 +317,13 @@ module ofs_plat_afu
                     $display( mem_read_data);
                     state <= STATE_NUM;
                 end
-                else
+               /* else
                 begin
                     //rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
                     $display("Else Read response");
                     host_ccip.sTx.c1.data <= t_ccip_clData'(40);
                     state <= STATE_NUM;
-                end
+                end*/
             end 
 
            else if (state == STATE_NUM)
