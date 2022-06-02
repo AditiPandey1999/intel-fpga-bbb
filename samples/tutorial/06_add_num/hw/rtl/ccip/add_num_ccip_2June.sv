@@ -336,8 +336,8 @@ module ofs_plat_afu
                 a <= mem_read_data[15:8];
                 b <= mem_read_data[23:16];
                 $display("4 state num, inputted two numbers: ");
-                //$display(a);
-                //$display(b);
+                $display(a);
+                $display(b);
                 state <= STATE_WRITE;
             end       
 
@@ -361,7 +361,7 @@ module ofs_plat_afu
                 host_ccip.sTx.c1.valid <= 1'b1;
                 host_ccip.sTx.c0.valid <= 1'b0;  
                 state <= STATE_IDLE;
-                $display("5. AFU done writing...");
+                $display("5. AFU done writing hardcoded...");
             
             end
         end
