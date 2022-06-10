@@ -33,6 +33,10 @@
 `include "ofs_plat_if.vh"
 `include "afu_json_info.vh"
 
+`include "cci_mpf_if.vh"
+`include "csr_mgr.vh"
+
+
 //
 // CCI-P version of add two numbers AFU example. Program takes an I/O buffer write address from the CPU as input,
 // uses it to determine memory locations for reading the input values to be added (see add_num.c file), 
@@ -307,7 +311,7 @@ module ofs_plat_afu
             begin
                 //Memory Read Response Header
                 // if(host_ccip.sRx.c0.rspValid) //
-                if(ccip_c0Rx_isReadRsp(host_ccip.sRx.c0))
+                if(cci_c0Rx_isReadRsp(host_ccip.sRx.c0))
                 begin
                     $display(" 3 AFU received response...");
                     mem_read_data <= t_ccip_clData'(host_ccip.sRx.c0.data);
