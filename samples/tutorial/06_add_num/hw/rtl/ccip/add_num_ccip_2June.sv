@@ -306,7 +306,8 @@ module ofs_plat_afu
            else if (state== STATE_READ_RESPONSE)
             begin
                 //Memory Read Response Header
-                if(host_ccip.sRx.c0.rspValid)
+                // if(host_ccip.sRx.c0.rspValid) //
+                if(cci_c0Rx_isReadRsp(host_ccip.sRx.c0))
                 begin
                     $display(" 3 AFU received response...");
                     mem_read_data <= t_ccip_clData'(host_ccip.sRx.c0.data);
