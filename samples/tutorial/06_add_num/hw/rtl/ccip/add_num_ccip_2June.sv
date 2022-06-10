@@ -32,8 +32,6 @@
 
 `include "ofs_plat_if.vh"
 `include "afu_json_info.vh"
-
-`include "cci_mpf_if.vh"
 `include "csr_mgr.vh"
 
 
