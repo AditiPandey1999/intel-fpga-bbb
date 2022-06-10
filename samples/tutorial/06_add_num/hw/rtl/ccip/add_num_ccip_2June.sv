@@ -28,11 +28,15 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+
+
 `include "ofs_plat_if.vh"
 `include "afu_json_info.vh"
 
 //
-// CCI-P version of add two numbers AFU example.
+// CCI-P version of add two numbers AFU example. Program takes an I/O buffer write address from the CPU as input,
+// uses it to determine memory locations for reading the input values to be added (see add_num.c file), 
+// and then adds them and sends the result back to the CPU in the specified write address. 
 //
 
 module ofs_plat_afu
@@ -210,11 +214,7 @@ module ofs_plat_afu
         rd_hdr.req_type = eREQ_RDLINE_I;
         // Virtual address (MPF virtual addressing is enabled)
         rd_hdr.address = mem_addr;
-        // Let the FIU pick the channel
-        //rd_hdr.vc_sel = t_ccip_vc(2'h0);
 
-        //rd_hdr.cl_len = 2'h0;
-        //cast(rd_hdr.cl_len,0);
     end
 
     
@@ -266,8 +266,7 @@ module ofs_plat_afu
     //
     // State machine
     //
-    t_ccip_c0_RspMemHdr rsp_hdr;////
-    //logic  mem_read_data[31:0];///
+    t_ccip_c0_RspMemHdr rsp_hdr;
     t_ccip_clData mem_read_data;
 
 
@@ -300,9 +299,7 @@ module ofs_plat_afu
                 host_ccip.sTx.c0.hdr <= rd_hdr;
                 host_ccip.sTx.c0.valid <= 1'b1;
                 host_ccip.sTx.c1.valid <= 1'b0;
-               //check rsp received
                 state <= STATE_READ_RESPONSE;
-                //state <= STATE_NUM;
                 $display("2 Waiting for AFU receiving response...");
             end            
 
@@ -311,21 +308,11 @@ module ofs_plat_afu
                 //Memory Read Response Header
                 if(host_ccip.sRx.c0.rspValid)
                 begin
-                    //host_ccip.sTx.c1.data <= t_ccip_clData'(30);
                     $display(" 3 AFU received response...");
-                    //rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
                     mem_read_data <= t_ccip_clData'(host_ccip.sRx.c0.data);
-                    //$display(" num 1 %d, num 2 %d", mem_read_data[15:8], mem_read_data[23:16]);
                     $display( mem_read_data);
                     state <= STATE_NUM;
                 end
-               /* else
-                begin
-                    //rsp_hdr <= t_ccip_c0_RspMemHdr'(0);
-                    $display("Else Read response");
-                    host_ccip.sTx.c1.data <= t_ccip_clData'(40);
-                    state <= STATE_NUM;
-                end*/
             end 
 
            else if (state == STATE_NUM)
@@ -339,9 +326,6 @@ module ofs_plat_afu
                 state <= STATE_WRITE;
             end       
 
-            // The AFU completes its task by writing a single line.  When
-            // the line is written return to idle.  The write will happen
-            // as long as the request channel is not full.
             /*else if (state==STATE_ADD)
             begin
                 //res <= a+b;
