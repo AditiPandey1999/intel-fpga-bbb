@@ -152,10 +152,10 @@ int main(int argc, char *argv[])
     
     assert(NULL != buf);
     
-    uint8_t bit64[8];//8 numbers of 8 bytes each
-    bit64[0] = 10;//9th byte
-    bit64[8] = 25;//10th byte
-
+    buf[1]= a;
+    buf[2]= b;
+      
+   
     // Set the low byte of the shared buffer to 0.  The FPGA will write
     // a non-zero value to it.
    
@@ -167,11 +167,6 @@ int main(int argc, char *argv[])
   
     fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa / CL(1));
     printf("buf_pa %x\n", (int)buf_pa);
-
-    if (FPGA_OK != fpgaWriteMMIO64(accel_handle, 0, 0, (void *)&bit64)) {
-        printf ("FPGA Write failed error %x\n", errno);
-    }
-
    
 
     // Spin, waiting for the value in memory to change to something non-zero.
