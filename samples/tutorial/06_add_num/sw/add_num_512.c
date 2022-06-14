@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
     printf("bit512-3 %x\n", bit512[3]);
     printf("bit512-4 %x\n", bit512[4]);
     printf("bit512-5 %x\n", bit512[5]);
-    printf("bit512-6 %x\n", bit512[6]);5
+    printf("bit512-6 %x\n", bit512[6]);
     printf("bit512-7 %x\n", bit512[7]);
    
 
