@@ -202,11 +202,11 @@ module ofs_plat_afu
             begin
                 assign is_mem_addr_csr_write = 1'b1;
             end
+            else   
+            begin                           
+                assign is_mem_data_csr_write = 1'b1;
+            end    
         end
-        else   
-        begin                           
-            assign is_mem_data_csr_write = 1'b1;
-        end    
     end
 
     
