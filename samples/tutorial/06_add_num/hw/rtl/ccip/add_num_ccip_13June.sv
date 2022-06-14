@@ -193,17 +193,21 @@ module ofs_plat_afu
 
     logic is_mem_addr_csr_write;
     logic is_mem_data_csr_write;
-    if (is_csr_write)
+
+  always_ff @(posedge clk)
     begin
-        if(mmio_req_hdr.address == t_ccip_mmioAddr'(0))
+        if (is_csr_write)
         begin
-            assign is_mem_addr_csr_write = 1'b1;
+            if(mmio_req_hdr.address == t_ccip_mmioAddr'(0))
+            begin
+                assign is_mem_addr_csr_write = 1'b1;
+            end
         end
+        else   
+        begin                           
+            assign is_mem_data_csr_write = 1'b1;
+        end    
     end
-    else   
-    begin                           
-        assign is_mem_data_csr_write = 1'b1;
-    end    
 
     
     t_ccip_clAddr mem_addr;
