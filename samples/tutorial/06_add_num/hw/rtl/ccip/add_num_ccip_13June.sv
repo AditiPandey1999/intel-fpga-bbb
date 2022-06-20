@@ -194,21 +194,6 @@ module ofs_plat_afu
     logic is_mem_addr_csr_write;
     logic is_mem_data_csr_write;
 
-  always_ff @(posedge clk)
-    begin
-        if (is_csr_write)
-        begin
-            if(mmio_req_hdr.address == t_ccip_mmioAddr'(0))
-            begin
-                assign is_mem_addr_csr_write = 1'b1;
-            end
-            else   
-            begin                           
-                assign is_mem_data_csr_write = 1'b1;
-            end    
-        end
-    end
-
     
     t_ccip_clAddr mem_addr;
     t_ccip_clData mem_data;
@@ -289,6 +274,17 @@ module ofs_plat_afu
             // tells us the address to which the FPGA should write a message.)
            if (state == STATE_IDLE)
            begin
+            if (is_csr_write)
+            begin
+                if(mmio_req_hdr.address == t_ccip_mmioAddr'(0))
+                begin
+                    assign is_mem_addr_csr_write = 1'b1;
+                end
+                else   
+                begin                           
+                    assign is_mem_data_csr_write = 1'b1;
+                end    
+            end
             if(is_mem_addr_csr_write)// you have the address to which you have to write, and therefore corresp read addresses
                 begin
                     if (!  host_ccip.sRx.c0TxAlmFull)
