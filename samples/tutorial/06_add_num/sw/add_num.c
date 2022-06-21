@@ -134,7 +134,8 @@ static volatile void* alloc_buffer(fpga_handle accel_handle,
 int main(int argc, char *argv[])
 {
     //Search for an accelerator matching the requested UUID and connect to it.
-
+    int a = 7;
+    int b = 5;
     fpga_handle accel_handle;
     volatile char *buf;
     uint64_t wsid; //uniquely identify the buffer once the buffer is created (or "prepared")
@@ -151,10 +152,10 @@ int main(int argc, char *argv[])
     
     assert(NULL != buf);
     
-    uint8_t bit512[64];//8 numbers of 8 bytes each
-    bit512[0] = 10;
-    bit512[8] = 25;
-
+    buf[1]= a;
+    buf[2]= b;
+      
+   
     // Set the low byte of the shared buffer to 0.  The FPGA will write
     // a non-zero value to it.
    
@@ -164,27 +165,8 @@ int main(int argc, char *argv[])
     // addresses.  The accelerator will respond by writing to the buffer.
     // calls an API to tell FPGA which address of buffer it is listening on
   
-    fpgaWriteMMIO512(accel_handle, 0, 0, buf_pa / CL(1));
+    fpgaWriteMMIO64(accel_handle, 0, 0, buf_pa / CL(1));
     printf("buf_pa %x\n", (int)buf_pa);
-
-    printf("Sleeping for 10 seconds.\n");
-    sleep(10);
-
-
-    if (FPGA_OK != fpgaWriteMMIO512(accel_handle, 0, 0, (void *)&bit512)) {
-        printf ("FPGA Write failed error %x\n", errno);
-    }
-
-    printf("buf_pa %x\n", (int)buf_pa);
-    printf("bit512-0 %x\n", bit64[0]);
-    printf("bit512-1 %x\n", bit64[1]);
-    printf("bit512-2 %x\n", bit64[2]);
-    printf("bit512-3 %x\n", bit64[3]);
-    printf("bit512-4 %x\n", bit64[4]);
-    printf("bit512-5 %x\n", bit64[5]);
-    printf("bit512-6 %x\n", bit64[6]);
-    printf("bit512-7 %x\n", bit64[7]);
-    printf("bit512-7 %x\n", bit64[8]);
    
 
     // Spin, waiting for the value in memory to change to something non-zero.
