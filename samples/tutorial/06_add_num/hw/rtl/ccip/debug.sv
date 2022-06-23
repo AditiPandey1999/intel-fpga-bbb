@@ -246,7 +246,7 @@ module ofs_plat_afu
     //
 
 
-    //logic [7:0] res;
+    logic [7:0] res;
     logic [7:0] a;
     logic [7:0] b;
 
