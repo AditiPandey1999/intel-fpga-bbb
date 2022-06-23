@@ -291,8 +291,6 @@ module ofs_plat_afu
                     begin
                         state <= STATE_SEND_READ_REQUEST;
                         $display("1 AFU sending read request..."); //for reading first and second number //1
-                        $display("address 1 is ");
-                        $display(mem_addr);
                     end
             end
 
@@ -313,8 +311,6 @@ module ofs_plat_afu
                 //Memory Read Response Header
                 if(host_ccip.sRx.c0.rspValid)
                 begin
-                    $display("address on receiving response");
-                    $display(t_ccip_c1_ReqMemHdr'(0));
                     $display(" 3 AFU received response...");
                     mem_read_data <= t_ccip_clData'(host_ccip.sRx.c0.data);
                     $display( mem_read_data);
@@ -334,9 +330,9 @@ module ofs_plat_afu
 
             else if (state==STATE_ADD)
             begin
-                //res <= a+b;
+                res <= a+b;
                 state <= STATE_WRITE;
-                $display("5 state add");
+                $display("state add");
             end
 
 
@@ -347,11 +343,11 @@ module ofs_plat_afu
                 $display(a);
                 $display(b);
                 host_ccip.sTx.c1.hdr <= wr_hdr;
-                host_ccip.sTx.c1.data <= t_ccip_clData'(res);///
+                host_ccip.sTx.c1.data <= t_ccip_clData'(res);//hardcode
                 host_ccip.sTx.c1.valid <= 1'b1;
                 host_ccip.sTx.c0.valid <= 1'b0;  
                 state <= STATE_IDLE;
-                $display("6 AFU done writing ...");
+                $display("5. AFU done writing hardcoded...");
             end
             
               
