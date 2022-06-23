@@ -257,7 +257,7 @@ module ofs_plat_afu
         STATE_SEND_READ_REQUEST,
         STATE_READ_RESPONSE,
         STATE_NUM,
-        //STATE_ADD,
+        STATE_ADD,
         STATE_WRITE
     }
     t_state;
