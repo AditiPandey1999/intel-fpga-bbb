@@ -283,7 +283,8 @@ module ofs_plat_afu
         begin
             // Trigger the AFU when mem_addr is set above.  (When the CPU
             // tells us the address to which the FPGA should write a message.)
-           if (state == STATE_IDLE)// you have the address to which you have to write, and therefore corresp read addresses
+           if (state == STATE_IDLE)//(is_mem_addr_csr_write)
+           // you have the address to which you have to write, and therefore corresp read addresses
             begin
                 host_ccip.sTx.c1.valid= 1'b0;
                 host_ccip.sTx.c0.valid= 1'b0;
@@ -343,7 +344,7 @@ module ofs_plat_afu
                 $display(a);
                 $display(b);
                 host_ccip.sTx.c1.hdr <= wr_hdr;
-                host_ccip.sTx.c1.data <= t_ccip_clData'(res);//hardcode
+                host_ccip.sTx.c1.data <= res;//hardcode
                 host_ccip.sTx.c1.valid <= 1'b1;
                 host_ccip.sTx.c0.valid <= 1'b0;  
                 state <= STATE_IDLE;
